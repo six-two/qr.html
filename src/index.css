@@ -1,0 +1,47 @@
+* {
+    box-sizing: border-box;
+}
+
+h1 {
+    text-align: center;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+    margin: 0px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    background-color: lightgray;
+}
+
+#input {
+    width: 100%;
+    min-height: 50px;
+    height: 150px;
+    flex: 1 0 0;
+    margin-bottom: 10px;
+}
+
+#error {
+    display: none;
+}
+
+.error {
+    width: 100%;
+    background-color: rgb(255, 140, 140);
+    border: 2px solid red;
+    border-radius: 10px;
+    padding: 5px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+img {
+    margin: 20px auto 0px auto;
+}
+
+hr {
+    color: black;
+}
