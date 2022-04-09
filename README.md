@@ -7,6 +7,7 @@ You can use it to exchange data with your phone, exfiltrate data from a VM, or w
 
 ## Known issues
 - QR code size limitation: A maximum of 2950 characters can be used with error correction level L, less if you choose better error correction.
+- When opening `qr.html` using a file URL in chromium and enabling the clipboard monitoring, a permissions dialog is triggered every time the clipboard is read (every second).
 
 ## Common QR code payloads
 
@@ -21,6 +22,7 @@ Wifi-Network (WPA2 Personal) | `WIFI:T:WPA;S:<name>;P:<password>;;` | WIFI:T:WPA
 
 ## Changelog
 
+- Added clipboard monitoring support. When the user enables the checkbox, the QR code is updated every time the clipboard changes. This feature can be completely disabled by modifying `qr.html` and setting `SHOW_CLIPBOARD_MONITORING_CONTROLS` to `false`.
 - Changed QR code generator library from [qrcodejs](https://github.com/davidshimjs/qrcodejs) to [qr-creator](https://github.com/nimiq/qr-creator), beacuse qrcodejs is no longer maintained and buggy (had problems with Unicode). Even the better maintained fork (https://github.com/zhiyuan-l/qrcodejs) still had the same problem sometimes
 
 
