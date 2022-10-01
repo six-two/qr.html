@@ -17,9 +17,11 @@ My tests were conducted on a Mac and/or Linux computer, Windows support may diff
 
 Feature | Chrome | Firefox | Safari
 ---|---|---|---
-Watch clipboard | no, too buggy | With insecure workaround | No
+Watch clipboard | Partial[^1] | With insecure workaround | No
 Paste file | Yes | No | Yes
 Drag and drop file | Yes | No | Yes
+
+[^1]: It works with the online version or with locally hosted versions (via `python3 -m http.server`). But it does not work with `file://` URLs, because it does not remember the decision and thus creates a popup every time
 
 ### Watch clipboard
 
