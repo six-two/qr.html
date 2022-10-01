@@ -180,6 +180,34 @@ https://example.com
             }
         };
 
+        // Handle chrome's pasting a file (copying if in file manager and them pressing Crtl-V [Cmd-V on Mac] while in the browser)
+        document.addEventListener("paste", async e => {
+            const file_count = e.clipboardData.files.length
+            if (file_count == 0) {
+                // do not prevent the default action, since it would break normal copy + paste
+                return
+            } else {
+                e.preventDefault();
+            
+                if (file_count == 1) {
+                    try {
+                        const file = e.clipboardData.files[0];
+                        const file_text = await file.text()
+                        console.log("Pasted file to web page:\n", file_text);
+
+                        // Update the text field and the QR code
+                        input_area.value = file_text
+                        updateQRCode();
+                    } catch (error) {
+                        showErrorMessage("Error reading the file from the clipboard");
+                        console.error("Error reading the file from the clipboard:", error);
+                    }
+                } else {
+                    showErrorMessage(`Tried to paste ${file_count} files. Please paste only one file at a time.`);
+                }
+            }
+        });
+
         updateQRCode();
         // Update the QR code whenever the text or the window size changes
         input_area.addEventListener("input", updateQRCode);
@@ -189,7 +217,7 @@ https://example.com
     </script>
 
     <script>
-        // All the clipboard stuff is here in a separate script, so that you can delete it if you don't need it (makes the file smaller)
+        // All the clipboard monitoring stuff is here in a separate script, so that you can delete it if you don't need it (makes the file smaller)
         if (SHOW_CLIPBOARD_MONITORING_CONTROLS) {
             const clipboard_checkbox = document.getElementById("clipboard-checkbox");
             const clipboard_error = document.getElementById("clipboard-error");
@@ -209,6 +237,7 @@ https://example.com
                     try {
                         clipboard_promise = navigator.clipboard.readText();
                     } catch (error) {
+                        // Firefox (at least on Linux and Mac) causes this
                         showClipboardError('Failed to read clipboard contents. This is a known problem in Firefox, please try using a different Browser like Chrome, Edge, etc (anything except Internet Explorer).<br><br>If you only have Firefox, you could enable Clipboard access by typing "about:config" in the URL bar, searching for "dom.events.testing.asyncClipboard" and setting it to true (by double clicking). Afterwards you can reload the page. <b>Please note, that doing this may have severe security implications, since other websites will be able to read your clipboard, which may contain sensitive information such as passwords.</b>');
                         return;
                     }
@@ -221,9 +250,10 @@ https://example.com
                             }
                             showClipboardError();
                         }
-                    );
-                } else {
-
+                    ).catch(error => {
+                        // This error only occured on Mac with Safari
+                        showClipboardError(`Failed to read clipboard contents because of the follwoing error:<br><i>${error}</i>`);
+                    });
                 }
             };
 

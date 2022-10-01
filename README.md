@@ -9,6 +9,29 @@ You can use it to exchange data with your phone, exfiltrate data from a VM, or w
 - QR code size limitation: A maximum of 2950 characters can be used with error correction level L, less if you choose better error correction.
 - When opening `qr.html` using a file URL in chromium and enabling the clipboard monitoring, a permissions dialog is triggered every time the clipboard is read (every second).
 
+## Additional features
+
+For convenience I have implemented some additional features, that make it easier / faster to generate QR codes from the data you want.
+However, these features use APIs that not all browsers support.
+My tests were conducted on a Mac and/or Linux computer, Windows support may differ:
+
+Feature | Chrome | Firefox | Safari
+---|---|---|---
+Watch clipboard | no, too buggy | With insecure workaround | No
+Paste file | Yes | Yes | No
+
+### Watch clipboard
+
+The idea is to watch the clipboard constantly (as far as allowed by the browser).
+
+Use case: Allow using guest clipboard on host (via [a script that parses QR code and puts its content's in the clipboard](https://gitlab.com/six-two/wm-config/-/blob/main/bin/copy-qr-code)), when working with a VM, Citrix, or similar system where clipboard sharing may not work/be enabled.
+
+Limits: Browsers only allow clipboard access when the specific tab and window are focused, browser support is terrible (probably since this is easy to abuse if the permission handling is not well implemented).
+
+### Paste file
+
+Copy a file from your OS file explorer and paste it into your browser to generate a QR code for the file's contents.
+
 ## Common QR code payloads
 
 Use case | Format | Example
