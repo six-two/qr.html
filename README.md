@@ -18,7 +18,8 @@ My tests were conducted on a Mac and/or Linux computer, Windows support may diff
 Feature | Chrome | Firefox | Safari
 ---|---|---|---
 Watch clipboard | no, too buggy | With insecure workaround | No
-Paste file | Yes | Yes | No
+Paste file | Yes | No | Yes
+Drag and drop file | Yes | No | Yes
 
 ### Watch clipboard
 
