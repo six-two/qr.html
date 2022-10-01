@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Make sure that no communication with external sites is possible -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data:;">
     <title>Offline QR code generator</title>
     <script>
         // ================== Start of user settings ==================
@@ -24,32 +26,6 @@
         // =================== End of user settings ===================
     </script>
     
-    
-</head>
-<body>
-    <h1><a href="https://github.com/six-two/qr.html" target="_blank" rel="noopener noreferrer">Offline QR code generator</a></h1>
-    <noscript><div class="error">You need to enable JavaScript to use this page</div></noscript>
-    <div id="error" class="error">BUG: You should not see this text</div>
-    <textarea id="input" name="input" id="" autofocus>You can generate QR codes from any text by typing in in this box. The code generation is performed on your local device, no data is sent anywhere.
-You can even download this file from https://raw.githubusercontent.com/six-two/qr.html/main/qr.html and use it when you are not connected to the Internet.
-
-- ⚠️ The maximum size of a QR code is 2950 bytes
-- 🎉 This should now also work with Emojis
-- 📁 You can now drag and drop a file in this text box
-- 📁 And you can copy-paste a file to this text area (does not work in all browsers, Google Chrome is recommended)
-
-</textarea>
-
-    <div id="clipboard-div">
-        <div id="clipboard-settings">
-            <input type="checkbox" id="clipboard-checkbox">
-            <label for="clipboard-checkbox"><abbr title="Whenever you copy text, the QR code will be updated to reflect the copied text. You may need to focus this website for this feature to work">Monitor the system clipboard</abbr></label>
-        </div>
-        <div id="clipboard-error" class="error"></div>
-    </div>
-
-    <div id="qrcode"></div>
-
     <style>
         * {
             box-sizing: border-box;
@@ -62,10 +38,36 @@ You can even download this file from https://raw.githubusercontent.com/six-two/q
             width: 100vw;
             height: 100vh;
             margin: 0px;
-            padding: 5px;
+            padding: 0px;
             display: flex;
             flex-direction: column;
             background-color: lightgray;
+        }
+
+        header {
+            width: 100%;
+            height: 40px;
+            background-color: #444;
+            color: lightgray;
+            display: flex;
+            font-size: 25px;
+            padding: 5px;
+        }
+
+        header a {
+            color: lightgray;
+            margin-right: 20px;
+        }
+
+        .expand {
+            flex: 1;
+        }
+
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 5px;
         }
         
         #input {
@@ -111,6 +113,38 @@ You can even download this file from https://raw.githubusercontent.com/six-two/q
             display: block;
         }
     </style>
+</head>
+<body>
+    <header>
+        <div class="title">Offline QR code generator</div>
+        <div class="expand"></div>
+        <a id="download" href="" download>Download</a>
+        <a href="https://github.com/six-two/qr.html" target="_blank" rel="noopener noreferrer">Source code</a>
+    </header>
+    <div class="content">
+        <noscript><div class="error">You need to enable JavaScript to use this page</div></noscript>
+        <div id="error" class="error">BUG: You should not see this text</div>
+        <textarea id="input" name="input" id="" autofocus>You can generate QR codes from any text by typing in in this box. The code generation is performed on your local device, no data is sent anywhere.
+You can even download this file (see button on the top right) and use it when you are not connected to the Internet.
+
+⚠️ The maximum size of a QR code is 2950 bytes
+⚠️ Some features will not work in some browsers. In my experience Google Chrome works best.
+🎉 This should now also work with Emojis
+📁 You can now drag and drop a file in this text box
+📁 And you can copy-paste a file to this text area
+</textarea>
+
+        <div id="clipboard-div">
+            <div id="clipboard-settings">
+                <input type="checkbox" id="clipboard-checkbox">
+                <label for="clipboard-checkbox"><abbr title="Whenever you copy text, the QR code will be updated to reflect the copied text. You may need to focus this website for this feature to work">Monitor the system clipboard</abbr></label>
+            </div>
+            <div id="clipboard-error" class="error"></div>
+        </div>
+
+        <div id="qrcode"></div>
+
+    
 
 <script type="text/javascript">
     const getQRRecommendedSize = (element) => {
@@ -225,60 +259,59 @@ You can even download this file from https://raw.githubusercontent.com/six-two/q
         window.addEventListener("resize", updateQRCode);
     }
     window.addEventListener("load", qr_init);
-    </script>
+</script>
 
-    <script>
-        // All the clipboard monitoring stuff is here in a separate script, so that you can delete it if you don't need it (makes the file smaller)
-        if (SHOW_CLIPBOARD_MONITORING_CONTROLS) {
-            const clipboard_checkbox = document.getElementById("clipboard-checkbox");
-            const clipboard_error = document.getElementById("clipboard-error");
+<script>
+    // All the clipboard monitoring stuff is here in a separate script, so that you can delete it if you don't need it (makes the file smaller)
+    if (SHOW_CLIPBOARD_MONITORING_CONTROLS) {
+        const clipboard_checkbox = document.getElementById("clipboard-checkbox");
+        const clipboard_error = document.getElementById("clipboard-error");
 
-            const showClipboardError = (message) => {
-                console.log("Clipboard error:", message);
-                clipboard_error.innerHTML = message;
-                clipboard_error.style.display = message ? "block" : "none";
-            };
+        const showClipboardError = (message) => {
+            console.log("Clipboard error:", message);
+            clipboard_error.innerHTML = message;
+            clipboard_error.style.display = message ? "block" : "none";
+        };
 
-            let last_value_copied = "";
+        let last_value_copied = "";
 
-            const check_clipboard = () => {
-                if (clipboard_checkbox.checked) {
-                    console.log("Reading clipboard");
-                    let clipboard_promise;
-                    try {
-                        clipboard_promise = navigator.clipboard.readText();
-                    } catch (error) {
-                        // Firefox (at least on Linux and Mac) causes this
-                        showClipboardError('Failed to read clipboard contents. This is a known problem in Firefox, please try using a different Browser like Chrome, Edge, etc (anything except Internet Explorer).<br><br>If you only have Firefox, you could enable Clipboard access by typing "about:config" in the URL bar, searching for "dom.events.testing.asyncClipboard" and setting it to true (by double clicking). Afterwards you can reload the page. <b>Please note, that doing this may have severe security implications, since other websites will be able to read your clipboard, which may contain sensitive information such as passwords.</b>');
-                        return;
-                    }
-                    clipboard_promise.then(
-                        clip_text => {
-                            // Only update the text when a different value is copied. This allows the user to change the text without it being reset every second.
-                            if (clip_text && clip_text != last_value_copied) {
-                                input.value = clip_text;
-                                last_value_copied = clip_text;
-                            }
-                            showClipboardError();
-                        }
-                    ).catch(error => {
-                        // This error only occured on Mac with Safari
-                        showClipboardError(`Failed to read clipboard contents because of the follwoing error:<br><i>${error}</i>`);
-                    });
+        const check_clipboard = () => {
+            if (clipboard_checkbox.checked) {
+                console.log("Reading clipboard");
+                let clipboard_promise;
+                try {
+                    clipboard_promise = navigator.clipboard.readText();
+                } catch (error) {
+                    // Firefox (at least on Linux and Mac) causes this
+                    showClipboardError('Failed to read clipboard contents. This is a known problem in Firefox, please try using a different Browser like Chrome, Edge, etc (anything except Internet Explorer).<br><br>If you only have Firefox, you could enable Clipboard access by typing "about:config" in the URL bar, searching for "dom.events.testing.asyncClipboard" and setting it to true (by double clicking). Afterwards you can reload the page. <b>Please note, that doing this may have severe security implications, since other websites will be able to read your clipboard, which may contain sensitive information such as passwords.</b>');
+                    return;
                 }
-            };
-
-            console.log("Is Secure Context?", window.isSecureContext);
-            if (window.isSecureContext) {
-                setInterval(check_clipboard, 1000);
-            } else {
-                clipboard_div.innerHTML = '<div class="error">Clipboard can not be monitored, because the page is not a <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts">secure context</a></div>'
+                clipboard_promise.then(
+                    clip_text => {
+                        // Only update the text when a different value is copied. This allows the user to change the text without it being reset every second.
+                        if (clip_text && clip_text != last_value_copied) {
+                            input.value = clip_text;
+                            last_value_copied = clip_text;
+                        }
+                        showClipboardError();
+                    }
+                ).catch(error => {
+                    // This error only occured on Mac with Safari
+                    showClipboardError(`Failed to read clipboard contents because of the follwoing error:<br><i>${error}</i>`);
+                });
             }
-        } else {
-            document.getElementById("clipboard-div").style.display = "none";
-        }
-    </script>
+        };
 
+        console.log("Is Secure Context?", window.isSecureContext);
+        if (window.isSecureContext) {
+            setInterval(check_clipboard, 1000);
+        } else {
+            clipboard_div.innerHTML = '<div class="error">Clipboard can not be monitored, because the page is not a <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts">secure context</a></div>'
+        }
+    } else {
+        document.getElementById("clipboard-div").style.display = "none";
+    }
+</script>
 <script>
     // https://github.com/nimiq/qr-creator, MIT License, Copyright (c) 2017 The Nimiq Foundation
     // Minified version from https://cdn.jsdelivr.net/npm/qr-creator/dist/qr-creator.min.js
