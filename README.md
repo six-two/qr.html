@@ -5,6 +5,25 @@ Because it is fully self-contained, you can just download the file and open it o
 
 You can use it to exchange data with your phone, exfiltrate data from a VM, or whatever else you use QR codes for.
 
+## tiny-qr.html
+
+If you have no direct channel to your target system (say you have a Citrix with no internet and clipboard & file upload disabled), you can use `tiny-qr.html`.
+It is a very basic QR code generator optimized for size, so that you can transfer it faster using keystroke emulation software (like `xdotool type`):
+
+1. Opening a text editor on the target
+2. (Optional) Trying different typing speeds to find the fastest speed at which the transfered contents are not corrupted
+3. Tell the keystroke emulation software to type the contents of `tiny-qr.html` and wait for it to finish.
+4. Save the editor's contents as a `.html` file
+5. Open the file with a browser of your choice
+
+`tiny-qr.html` differs from `qr.html` in the follwoing ways:
+
+- Very short error messages and use of popups instead of an dedicated error message field. No debugging data logged to the console
+- No additional features such as drag and drop, clipboard watching, etc
+- Simplified layout
+- Use of short (mostly 1 letter) variable names, removed all comments
+- When alternative syntaxes for something exist, using the shortest one
+
 ## Known issues
 - QR code size limitation: A maximum of 2950 characters can be used with error correction level L, less if you choose better error correction.
 - When opening `qr.html` using a file URL in chromium and enabling the clipboard monitoring, a permissions dialog is triggered every time the clipboard is read (every second).
