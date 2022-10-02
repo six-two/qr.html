@@ -4,11 +4,90 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Redirect</title>
-    <meta http-equiv="Refresh" content="0; url='qr.html'" />
+    <title>Previews</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        h1,h2 {
+            text-align: center;
+        }
+
+        body {
+            width: 100%;
+            margin: 0px;
+            padding: 0px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+        }
+
+        header {
+            width: 100%;
+            height: 40px;
+            background-color: #444;
+            color: lightgray;
+            display: flex;
+            font-size: 25px;
+            padding: 7px;
+        }
+
+        header a {
+            color: lightgray;
+            margin-right: 20px;
+        }
+
+        .expand {
+            flex: 1;
+        }
+
+        iframe {
+            margin: auto;
+            margin-top: 10px;
+            width: 90%;
+            height: 800px;
+            max-height: 80vh;
+        }
+
+        hr {
+            color: black;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        p {
+            width: 90%;
+            margin: auto;
+        }
+    </style>
 </head>
 <body>
-    <!-- This is a redirect page, so that this repo/directory can more easily be hosted online -->
-    If you are not being redirected, please click <a href="qr.html">here</a>
+    <header>
+        <div class="title">QR code generators - Previews</div>
+        <div class="expand"></div>
+        <a href="https://github.com/six-two/qr.html" target="_blank" rel="noopener noreferrer">Source code</a>
+    </header>
+
+    <h1>Previews</h1>
+    <!-- @TODO: rewrite -->
+    <p>This page offers fully interactive previews of my QR code generators.
+    They are entirely free and open source and do all the work in your browser.
+    This means the text you type will not be sent to a remote server.
+    It also enables you to download them and use them on a computer not connected to the internet.
+    You can click the link above a preview to jump to the corresponding website.</p>
+
+    <hr>
+    <h2><a href="qr.html">Recommended QR code generator</a></h2>
+    <p>This QR code generator offers some convenience features such as being able to drag & drop (or copy-paste) a file into the textbox. If the browser supports it (and you allow it), it can also constantly monitor the systems clipboard and generate a QR code from the clipboard's contents.
+    (<a href="qr.html" download>Download</a>)</p>
+    
+    <iframe src="qr.html"></iframe>
+
+    <hr>
+    <h2><a href="tiny-qr.html">Tiny QR code generator</a></h2>
+    <p>This QR code generator is designed to be as small as possible and thus offers significantly fewer features.
+    (<a href="tiny-qr.html" download>Download</a>)</p>
+    <iframe src="tiny-qr.html"></iframe>
 </body>
 </html>
