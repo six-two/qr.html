@@ -23,6 +23,7 @@ It is a very basic QR code generator optimized for size, so that you can transfe
 - Simplified layout
 - Use of short (mostly 1 letter) variable names, removed all comments
 - When alternative syntaxes for something exist, using the shortest one
+- The file is only approximately half as long (12916 characters vs 24863 characters at the time of writing)
 
 ## Known issues
 - QR code size limitation: A maximum of 2950 characters can be used with error correction level L, less if you choose better error correction.
