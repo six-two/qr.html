@@ -5,6 +5,8 @@ Because it is fully self-contained, you can just download the file and open it o
 
 You can use it to exchange data with your phone, exfiltrate data from a VM, or whatever else you use QR codes for.
 
+You can try out the live demo at [qr.15c.me/qr.html](https://qr.15c.me/qr.html).
+
 ## tiny-qr.html
 
 If you have no direct channel to your target system (say you have a Citrix with no internet and clipboard & file upload disabled), you can use `tiny-qr.html`.
@@ -16,7 +18,7 @@ It is a very basic QR code generator optimized for size, so that you can transfe
 4. Save the editor's contents as a `.html` file
 5. Open the file with a browser of your choice
 
-`tiny-qr.html` differs from `qr.html` in the follwoing ways:
+`tiny-qr.html` differs from `qr.html` in the following ways:
 
 - Very short error messages and use of popups instead of an dedicated error message field. No debugging data logged to the console
 - No additional features such as drag and drop, clipboard watching, etc
@@ -25,7 +27,10 @@ It is a very basic QR code generator optimized for size, so that you can transfe
 - When alternative syntaxes for something exist, using the shortest one
 - The file is only approximately half as long (12916 characters vs 24863 characters at the time of writing)
 
+You can try out the live demo at [qr.15c.me/tiny-qr.html](https://qr.15c.me/tiny-qr.html).
+
 ## Known issues
+
 - QR code size limitation: A maximum of 2950 characters can be used with error correction level L, less if you choose better error correction.
 - When opening `qr.html` using a file URL in chromium and enabling the clipboard monitoring, a permissions dialog is triggered every time the clipboard is read (every second).
 
@@ -37,11 +42,12 @@ My tests were conducted on a Mac and/or Linux computer, Windows support may diff
 
 Feature | Chrome | Firefox | Safari
 ---|---|---|---
-Watch clipboard | Partial[^1] | With insecure workaround | No
+Watch clipboard | Partial[^1] | With insecure workaround[^2] | No
 Paste file | Yes | No | Yes
 Drag and drop file | Yes | No | Yes
 
 [^1]: It works with the online version or with locally hosted versions (via `python3 -m http.server`). But it does not work with `file://` URLs, because it does not remember the decision and thus creates a popup every time
+[^2]: By typing "about:config" in the URL bar, searching for "dom.events.testing.asyncClipboard" and setting it to true (by double clicking). Afterwards you can reload the page. **Please note, that doing this may have severe security implications, since other websites will be able to read your clipboard, which may contain sensitive information such as passwords.**
 
 ### Watch clipboard
 
@@ -68,6 +74,8 @@ Wifi-Network (WPA2 Personal) | `WIFI:T:WPA;S:<name>;P:<password>;;` | WIFI:T:WPA
 
 ## Changelog
 
+- Created a basic minified version (tiny-qr.html)
+- Added drag & drop and file copy pasting support
 - Added clipboard monitoring support. When the user enables the checkbox, the QR code is updated every time the clipboard changes. This feature can be completely disabled by modifying `qr.html` and setting `SHOW_CLIPBOARD_MONITORING_CONTROLS` to `false`.
 - Changed QR code generator library from [qrcodejs](https://github.com/davidshimjs/qrcodejs) to [qr-creator](https://github.com/nimiq/qr-creator), beacuse qrcodejs is no longer maintained and buggy (had problems with Unicode). Even the better maintained fork (https://github.com/zhiyuan-l/qrcodejs) still had the same problem sometimes
 
