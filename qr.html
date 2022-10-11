@@ -46,7 +46,7 @@
 
         header {
             width: 100%;
-            height: 40px;
+            min-height: 40px;
             background-color: #444;
             color: lightgray;
             display: flex;
@@ -74,13 +74,13 @@
             width: 100%;
             min-height: 50px;
             flex: 1;
-            margin-bottom: 10px;
+            resize: none;
         }
 
-        #error, #clipboard-error {
+        #clipboard-error {
             display: none;
         }
-
+        
         .error, .info {
             width: 100%;
             background-color: rgb(255, 140, 140);
@@ -88,7 +88,6 @@
             border-radius: 10px;
             padding: 5px;
             text-align: center;
-            margin-bottom: 10px;
         }
 
         .info {
@@ -112,6 +111,11 @@
             margin: auto;
             display: block;
         }
+
+        .block {
+            padding-top: 5px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -122,9 +126,8 @@
         <a href="https://github.com/six-two/qr.html" target="_blank" rel="noopener noreferrer">Source code</a>
     </header>
     <div class="content">
-        <noscript><div class="error">You need to enable JavaScript to use this page</div></noscript>
-        <div id="error" class="error">BUG: You should not see this text</div>
-        <textarea id="input" name="input" id="" autofocus>You can generate QR codes from any text by typing in in this box. The code generation is performed on your local device, no data is sent anywhere.
+        <div id="error" class="error">You need to enable JavaScript to use this page</div>
+        <textarea id="input" class="block" name="input" id="" autofocus>You can generate QR codes from any text by typing in in this box. The code generation is performed on your local device, no data is sent anywhere.
 You can even download this file (see button on the top right) and use it when you are not connected to the Internet.
 
 ⚠️ The maximum size of a QR code is 2950 bytes
@@ -134,7 +137,7 @@ You can even download this file (see button on the top right) and use it when yo
 📁 And you can copy-paste a file to this text area
 </textarea>
 
-        <div id="clipboard-div">
+        <div id="clipboard-div" class="block">
             <div id="clipboard-settings">
                 <input type="checkbox" id="clipboard-checkbox">
                 <label for="clipboard-checkbox"><abbr title="Whenever you copy text, the QR code will be updated to reflect the copied text. You may need to focus this website for this feature to work">Monitor the system clipboard</abbr></label>
@@ -147,6 +150,11 @@ You can even download this file (see button on the top right) and use it when yo
     
 
 <script type="text/javascript">
+    // Only show if JS is enabled
+    for (e of document.getElementsByClassName("block")) {
+        e.style.display = "block"
+    } 
+
     const getQRRecommendedSize = (element) => {
         if (QR_SIZE <= 0) {
             width = element.clientWidth;
@@ -299,6 +307,8 @@ You can even download this file (see button on the top right) and use it when yo
                     // This error only occured on Mac with Safari
                     showClipboardError(`Failed to read clipboard contents because of the follwoing error:<br><i>${error}</i>`);
                 });
+            } else {
+                showClipboardError(null);
             }
         };
 
