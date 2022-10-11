@@ -42,6 +42,7 @@
             display: flex;
             flex-direction: column;
             background-color: lightgray;
+            overflow: hidden;
         }
 
         header {
@@ -146,7 +147,6 @@ You can even download this file (see button on the top right) and use it when yo
         </div>
 
         <div id="qrcode"></div>
-
     
 
 <script type="text/javascript">
@@ -217,7 +217,7 @@ You can even download this file (see button on the top right) and use it when yo
                     if (!qr_was_shown) {
                         // if no qr code was shown before, the size is screwed up.
                         // So we wait a bit and update the QR code to get the correct size
-                        setTimeout(updateQRCode, 50)
+                        setTimeout(updateQRCode, 20)
                     }
                 } catch (error) {
                     showErrorMessage("Failed to generate the QR code! Please try a shorter text and try removing special characters and emojis. If you are a programmer, look in the prowser console for the error message");
@@ -261,10 +261,28 @@ You can even download this file (see button on the top right) and use it when yo
             return false;
         });
 
+        const isOverflown = (e) => {
+            return e.scrollHeight > e.clientHeight || e.scrollWidth > e.clientWidth;
+        }
+        let resize_timout;
+
         updateQRCode();
         // Update the QR code whenever the text or the window size changes
         input_area.addEventListener("input", updateQRCode);
-        window.addEventListener("resize", updateQRCode);
+        window.addEventListener("resize", () => {
+            // Workaround for QR code not shrinking
+            clearTimeout(resize_timout);
+            if (isOverflown(document.body)) {
+                // Prevent flickering by waiting until the resizing is done before reacting
+                resize_timout = setTimeout(() => {
+                    // "reset" the gui by temporarily hiding the QR code
+                    qrcode.style.display = "none";
+                    updateQRCode()
+                }, 50)
+            } else {
+                updateQRCode()
+            }
+        });
     }
     window.addEventListener("load", qr_init);
 </script>

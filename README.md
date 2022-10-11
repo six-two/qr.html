@@ -33,7 +33,6 @@ You can try out the live demo at [qr.15c.me/tiny-qr.html](https://qr.15c.me/tiny
 
 - QR code size limitation: A maximum of 2950 characters can be used with error correction level L, less if you choose better error correction.
 - When opening `qr.html` using a file URL in chromium and enabling the clipboard monitoring, a permissions dialog is triggered every time the clipboard is read (every second).
-- When resizing the page to make it smaller, the QR code often refuses to shrink. I don't know why and any help/hints are welcome. My current workaround is just reloading the page.
 
 ## Additional features
 
