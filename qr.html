@@ -55,9 +55,14 @@
             padding: 5px;
         }
 
-        header a {
+        header a, header .button {
             color: lightgray;
             margin-right: 20px;
+        }
+
+        header .button {
+            cursor: pointer;
+            text-decoration: underline
         }
 
         .expand {
@@ -69,6 +74,12 @@
             display: flex;
             flex-direction: column;
             padding: 5px;
+        }
+
+        #text-and-qr {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
         
         #input {
@@ -123,12 +134,15 @@
     <header>
         <div class="title">Offline QR code generator</div>
         <div class="expand"></div>
+        
+        <div id="monitor-clipboard" class="button"></div>
         <a id="download" href="" download>Download</a>
         <a href="https://github.com/six-two/qr.html" target="_blank" rel="noopener noreferrer">Source code</a>
     </header>
     <div class="content">
         <div id="error" class="error">You need to enable JavaScript to use this page</div>
-        <textarea id="input" class="block" name="input" id="" autofocus>You can generate QR codes from any text by typing in in this box. The code generation is performed on your local device, no data is sent anywhere.
+        <div id="text-and-qr">
+            <textarea id="input" class="block" name="input" id="" autofocus>You can generate QR codes from any text by typing in in this box. The code generation is performed on your local device, no data is sent anywhere.
 You can even download this file (see button on the top right) and use it when you are not connected to the Internet.
 
 ⚠️ The maximum size of a QR code is 2950 bytes
@@ -137,23 +151,14 @@ You can even download this file (see button on the top right) and use it when yo
 📁 You can now drag and drop a file in this text box
 📁 And you can copy-paste a file to this text area
 </textarea>
-
-        <div id="clipboard-div" class="block">
-            <div id="clipboard-settings">
-                <input type="checkbox" id="clipboard-checkbox">
-                <label for="clipboard-checkbox"><abbr title="Whenever you copy text, the QR code will be updated to reflect the copied text. You may need to focus this website for this feature to work">Monitor the system clipboard</abbr></label>
-            </div>
-            <div id="clipboard-error" class="error"></div>
+            <div id="qrcode"></div>
         </div>
-
-        <div id="qrcode"></div>
-    
 
 <script type="text/javascript">
     // Only show if JS is enabled
     for (e of document.getElementsByClassName("block")) {
         e.style.display = "block"
-    } 
+    }
 
     const getQRRecommendedSize = (element) => {
         if (QR_SIZE <= 0) {
@@ -168,26 +173,33 @@ You can even download this file (see button on the top right) and use it when yo
         }
     };
 
-    const qr_init = () => {
-        const qrcode = document.getElementById("qrcode");
-        const input_area = document.getElementById("input");
-        const error = document.getElementById("error");
+    const qrcode = document.getElementById("qrcode");
+    const input_area = document.getElementById("input");
+    const error = document.getElementById("error");
+    let last_error = "";
 
-        const showErrorMessage = (message) => {
-            console.log("Error:", message);
+    const showErrorMessage = (message, hide_qr = true) => {
+        console.log("Error:", message);
+        const same_message_already_shown = error.style.display == "block" && message == last_error;
+        last_error = message;
 
-            error.innerHTML = ""; // remove current children
-            const messageElement = document.createTextNode(message);
-            error.appendChild(messageElement);
+        error.innerHTML = ""; // remove current children
+        const messageElement = document.createTextNode(message);
+        error.appendChild(messageElement);
 
-            error.style.display = "block";
+        error.style.display = "block";
+        if (hide_qr) {
             qrcode.style.display = "none";
-        };
-
+        } else if (!same_message_already_shown) {
+            // Resize the QR code to fix the error message pushing the QR code out of frame
+            qrcode.style.display = "none";
+            setTimeout(() => updateQRCode(false), 10);
+        }
+    };
         
         console.info("QR code error correction level:", ERROR_CORRECTION_LEVEL)
         
-        const updateQRCode = () => {
+        const updateQRCode = (hide_error = true) => {
             const qr_size = Math.max(getQRRecommendedSize(qrcode) - 10, 50); // remove 2 * 5px for the paddings
             console.info("QR code size in pixels:", qr_size);
 
@@ -201,7 +213,9 @@ You can even download this file (see button on the top right) and use it when yo
                 const qr_was_shown = qrcode.style.display == "block";
                 console.log("Was QR shown:", qr_was_shown);
 
-                error.style.display = "none";
+                if (hide_error){
+                    error.style.display = "none";
+                }
                 qrcode.style.display = "block";
                 try {
                     qrcode.innerHTML = ""; // delete the old QR codes
@@ -217,7 +231,7 @@ You can even download this file (see button on the top right) and use it when yo
                     if (!qr_was_shown) {
                         // if no qr code was shown before, the size is screwed up.
                         // So we wait a bit and update the QR code to get the correct size
-                        setTimeout(updateQRCode, 20)
+                        setTimeout(() => updateQRCode(hide_error), 10)
                     }
                 } catch (error) {
                     showErrorMessage("Failed to generate the QR code! Please try a shorter text and try removing special characters and emojis. If you are a programmer, look in the prowser console for the error message");
@@ -266,7 +280,7 @@ You can even download this file (see button on the top right) and use it when yo
         }
         let resize_timout;
 
-        updateQRCode();
+        setTimeout(updateQRCode, 50);
         // Update the QR code whenever the text or the window size changes
         input_area.addEventListener("input", updateQRCode);
         window.addEventListener("resize", () => {
@@ -283,8 +297,6 @@ You can even download this file (see button on the top right) and use it when yo
                 updateQRCode()
             }
         });
-    }
-    window.addEventListener("load", qr_init);
 </script>
 
 <script>
@@ -293,23 +305,28 @@ You can even download this file (see button on the top right) and use it when yo
         const clipboard_checkbox = document.getElementById("clipboard-checkbox");
         const clipboard_error = document.getElementById("clipboard-error");
 
-        const showClipboardError = (message) => {
-            console.log("Clipboard error:", message);
-            clipboard_error.innerHTML = message;
-            clipboard_error.style.display = message ? "block" : "none";
-        };
+        const showClipboardError = (msg) => showErrorMessage(msg, false);
+
+        let monitor_clipboard_enabled = false;
+        const monitor_clipboard_menuitem = document.getElementById("monitor-clipboard");
+        const update_cb_mon_menuitem = () => monitor_clipboard_menuitem.innerHTML = monitor_clipboard_enabled ? "Stop clipboard monitoring" : "Start clipboard monitoring";
+        monitor_clipboard_menuitem.addEventListener("click", () => {
+            monitor_clipboard_enabled = !monitor_clipboard_enabled;
+            update_cb_mon_menuitem()
+        });
+        update_cb_mon_menuitem();
 
         let last_value_copied = "";
 
         const check_clipboard = () => {
-            if (clipboard_checkbox.checked) {
+            if (monitor_clipboard_enabled) {
                 console.log("Reading clipboard");
                 let clipboard_promise;
                 try {
                     clipboard_promise = navigator.clipboard.readText();
                 } catch (error) {
                     // Firefox (at least on Linux and Mac) causes this
-                    showClipboardError('Failed to read clipboard contents. This is a known problem in Firefox, please try using a different Browser like Chrome, Edge, etc (anything except Internet Explorer).<br><br>If you only have Firefox, you could enable Clipboard access by typing "about:config" in the URL bar, searching for "dom.events.testing.asyncClipboard" and setting it to true (by double clicking). Afterwards you can reload the page. <b>Please note, that doing this may have severe security implications, since other websites will be able to read your clipboard, which may contain sensitive information such as passwords.</b>');
+                    showClipboardError('Failed to read clipboard contents. This is a known problem in Firefox, please try using a different Browser like Chrome, Edge, etc (anything except Internet Explorer). If you only have Firefox, you could enable Clipboard access by typing "about:config" in the URL bar, searching for "dom.events.testing.asyncClipboard" and setting it to true (by double clicking). Afterwards you can reload the page. Please note, that doing this may have severe security implications, since other websites will be able to read your clipboard, which may contain sensitive information such as passwords.');
                     return;
                 }
                 clipboard_promise.then(
@@ -323,10 +340,10 @@ You can even download this file (see button on the top right) and use it when yo
                     }
                 ).catch(error => {
                     // This error only occured on Mac with Safari
-                    showClipboardError(`Failed to read clipboard contents because of the follwoing error:<br><i>${error}</i>`);
+                    showClipboardError(`Failed to read clipboard contents because of the follwoing error: ${error}`);
                 });
             } else {
-                showClipboardError(null);
+                updateQRCode();
             }
         };
 
