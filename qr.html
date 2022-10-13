@@ -84,7 +84,8 @@
         
         #input {
             width: 100%;
-            min-height: 50px;
+            min-height: 100px;
+            min-width: 100px;
             flex: 1;
             resize: none;
         }
@@ -115,6 +116,7 @@
         #qrcode {
             margin: auto;
             width: 100%;
+            height: 100%;
             padding: 5px;
             flex: 3;
         }
@@ -144,6 +146,7 @@
         <div id="text-and-qr">
             <textarea id="input" class="block" name="input" id="" autofocus>You can generate QR codes from any text by typing in in this box. The code generation is performed on your local device, no data is sent anywhere.
 You can even download this file (see button on the top right) and use it when you are not connected to the Internet.
+If the layout looks strange, try resizing your browser window. It always tries to maximize the QR code's size, which can look strange sometimes.
 
 ⚠️ The maximum size of a QR code is 2950 bytes
 ⚠️ Some features will not work in some browsers. In my experience Google Chrome works best.
@@ -162,12 +165,7 @@ You can even download this file (see button on the top right) and use it when yo
 
     const getQRRecommendedSize = (element) => {
         if (QR_SIZE <= 0) {
-            width = element.clientWidth;
-            console.debug("QR size check: width =", width);
-            height = element.clientHeight;
-            console.debug("QR size check: height =", height);
-
-            return Math.min(width, height);
+            return Math.min(element.clientWidth, element.clientHeight);
         } else {
             return QR_SIZE;
         }
@@ -176,6 +174,7 @@ You can even download this file (see button on the top right) and use it when yo
     const qrcode = document.getElementById("qrcode");
     const input_area = document.getElementById("input");
     const error = document.getElementById("error");
+    const text_and_qr = document.getElementById("text-and-qr");
     let last_error = "";
 
     const showErrorMessage = (message, hide_qr = true) => {
@@ -201,7 +200,6 @@ You can even download this file (see button on the top right) and use it when yo
         
         const updateQRCode = (hide_error = true) => {
             const qr_size = Math.max(getQRRecommendedSize(qrcode) - 10, 50); // remove 2 * 5px for the paddings
-            console.info("QR code size in pixels:", qr_size);
 
             text = input_area.value;
             if (!text) {
@@ -282,8 +280,26 @@ You can even download this file (see button on the top right) and use it when yo
 
         setTimeout(updateQRCode, 50);
         // Update the QR code whenever the text or the window size changes
+        // Use max-width/height to keep the QR code div in square shape and allow the textarea to use the remaining space
         input_area.addEventListener("input", updateQRCode);
-        window.addEventListener("resize", () => {
+        const on_window_resize = () => {
+            const width = text_and_qr.clientWidth;
+            const height = text_and_qr.clientHeight;
+            if (!width || !height) {
+                console.warn(`Size can not be 0 or undefined. But size is (${width}, ${height})`)
+            }
+            if (width < height) {
+                // portrait view -> vertical
+                text_and_qr.style.flexDirection = "column";
+                qrcode.style.maxWidth = "";
+                qrcode.style.maxHeight = `${width}px`;
+            } else {
+                // landscape view -> horizontal
+                text_and_qr.style.flexDirection = "row";
+                qrcode.style.maxWidth = `${height}px`;
+                qrcode.style.maxHeight = "";
+            }
+
             // Workaround for QR code not shrinking
             clearTimeout(resize_timout);
             if (isOverflown(document.body)) {
@@ -296,7 +312,10 @@ You can even download this file (see button on the top right) and use it when yo
             } else {
                 updateQRCode()
             }
-        });
+        };
+    window.addEventListener("resize", on_window_resize);
+    // Call it shortly after loading the page to determine the inital layout
+    setTimeout(on_window_resize, 10);
 </script>
 
 <script>
@@ -343,7 +362,7 @@ You can even download this file (see button on the top right) and use it when yo
                     showClipboardError(`Failed to read clipboard contents because of the follwoing error: ${error}`);
                 });
             } else {
-                updateQRCode();
+                // updateQRCode();
             }
         };
 
