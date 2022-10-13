@@ -37,6 +37,7 @@
         body {
             width: 100vw;
             height: 100vh;
+            max-height: 100vh;
             margin: 0px;
             padding: 0px;
             display: flex;
@@ -77,6 +78,7 @@
         }
 
         #text-and-qr {
+            max-width: 100%;
             flex: 1;
             display: flex;
             flex-direction: column;
@@ -133,7 +135,7 @@
     </style>
 </head>
 <body>
-    <header>
+    <header id="header">
         <div class="title">Offline QR code generator</div>
         <div class="expand"></div>
         
@@ -163,19 +165,21 @@ If the layout looks strange, try resizing your browser window. It always tries t
         e.style.display = "block"
     }
 
-    const getQRRecommendedSize = (element) => {
-        if (QR_SIZE <= 0) {
-            return Math.min(element.clientWidth, element.clientHeight);
-        } else {
-            return QR_SIZE;
-        }
-    };
-
+    const header = document.getElementById("header");
     const qrcode = document.getElementById("qrcode");
     const input_area = document.getElementById("input");
     const error = document.getElementById("error");
     const text_and_qr = document.getElementById("text-and-qr");
     let last_error = "";
+    
+    const getQRRecommendedSize = () => {
+        if (QR_SIZE <= 0) {
+
+            return Math.min(qrcode.clientWidth, qrcode.clientHeight);
+        } else {
+            return QR_SIZE;
+        }
+    };
 
     const showErrorMessage = (message, hide_qr = true) => {
         console.log("Error:", message);
@@ -199,7 +203,7 @@ If the layout looks strange, try resizing your browser window. It always tries t
         console.info("QR code error correction level:", ERROR_CORRECTION_LEVEL)
         
         const updateQRCode = (hide_error = true) => {
-            const qr_size = Math.max(getQRRecommendedSize(qrcode) - 10, 50); // remove 2 * 5px for the paddings
+            const qr_size = Math.max(getQRRecommendedSize() - 10, 50); // remove 2 * 5px for the paddings
 
             text = input_area.value;
             if (!text) {
@@ -302,18 +306,24 @@ If the layout looks strange, try resizing your browser window. It always tries t
 
             // Workaround for QR code not shrinking
             clearTimeout(resize_timout);
-            if (isOverflown(document.body)) {
-                // Prevent flickering by waiting until the resizing is done before reacting
-                resize_timout = setTimeout(() => {
-                    // "reset" the gui by temporarily hiding the QR code
-                    qrcode.style.display = "none";
-                    updateQRCode()
-                }, 50)
-            } else {
-                updateQRCode()
-            }
+            console.debug(`on_resize heights: body=${document.body.clientHeight} container=${text_and_qr.clientHeight} qr=${qrcode.clientHeight}`)
+            // if (isOverflown(document.body)) {
+            //     // Prevent flickering by waiting until the resizing is done before reacting
+            //     resize_timout = setTimeout(() => {
+            //         // "reset" the gui by temporarily hiding the QR code
+            //         qrcode.style.display = "none";
+            //         updateQRCode()
+            //     }, 50)
+            // } else {
+            //     updateQRCode()
+            // }
+            text_and_qr.style.maxHeight = `${document.body.clientHeight - (header.clientHeight + 5)}px`;
+            console.debug("maxheight:", text_and_qr.maxHeight);
+            updateQRCode()
         };
     window.addEventListener("resize", on_window_resize);
+    // sometimes the event does not get called (for example when closing the browser console). So we call it regularly just to be sure
+    setInterval(on_window_resize, 1000)
     // Call it shortly after loading the page to determine the inital layout
     setTimeout(on_window_resize, 10);
 </script>
