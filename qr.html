@@ -70,18 +70,12 @@
             flex: 1;
         }
 
-        .content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 5px;
-        }
-
         #text-and-qr {
             max-width: 100%;
             flex: 1;
             display: flex;
             flex-direction: column;
+            padding: 5px;
         }
         
         #input {
@@ -143,10 +137,9 @@
         <a id="download" href="" download>Download</a>
         <a href="https://github.com/six-two/qr.html" target="_blank" rel="noopener noreferrer">Source code</a>
     </header>
-    <div class="content">
-        <div id="error" class="error">You need to enable JavaScript to use this page</div>
-        <div id="text-and-qr">
-            <textarea id="input" class="block" name="input" id="" autofocus>You can generate QR codes from any text by typing in in this box. The code generation is performed on your local device, no data is sent anywhere.
+    <div id="error" class="error">You need to enable JavaScript to use this page</div>
+    <div id="text-and-qr">
+        <textarea id="input" class="block" name="input" id="" autofocus>You can generate QR codes from any text by typing in in this box. The code generation is performed on your local device, no data is sent anywhere.
 You can even download this file (see button on the top right) and use it when you are not connected to the Internet.
 If the layout looks strange, try resizing your browser window. It always tries to maximize the QR code's size, which can look strange sometimes.
 
@@ -156,8 +149,8 @@ If the layout looks strange, try resizing your browser window. It always tries t
 📁 You can now drag and drop a file in this text box
 📁 And you can copy-paste a file to this text area
 </textarea>
-            <div id="qrcode"></div>
-        </div>
+        <div id="qrcode"></div>
+    </div>
 
 <script type="text/javascript">
     // Only show if JS is enabled
@@ -277,11 +270,6 @@ If the layout looks strange, try resizing your browser window. It always tries t
             return false;
         });
 
-        const isOverflown = (e) => {
-            return e.scrollHeight > e.clientHeight || e.scrollWidth > e.clientWidth;
-        }
-        let resize_timout;
-
         setTimeout(updateQRCode, 50);
         // Update the QR code whenever the text or the window size changes
         // Use max-width/height to keep the QR code div in square shape and allow the textarea to use the remaining space
@@ -305,21 +293,9 @@ If the layout looks strange, try resizing your browser window. It always tries t
             }
 
             // Workaround for QR code not shrinking
-            clearTimeout(resize_timout);
             console.debug(`on_resize heights: body=${document.body.clientHeight} container=${text_and_qr.clientHeight} qr=${qrcode.clientHeight}`)
-            // if (isOverflown(document.body)) {
-            //     // Prevent flickering by waiting until the resizing is done before reacting
-            //     resize_timout = setTimeout(() => {
-            //         // "reset" the gui by temporarily hiding the QR code
-            //         qrcode.style.display = "none";
-            //         updateQRCode()
-            //     }, 50)
-            // } else {
-            //     updateQRCode()
-            // }
-            text_and_qr.style.maxHeight = `${document.body.clientHeight - (header.clientHeight + 5)}px`;
-            console.debug("maxheight:", text_and_qr.maxHeight);
-            updateQRCode()
+            text_and_qr.style.maxHeight = `${document.body.clientHeight - (header.clientHeight + error.clientHeight)}px`;
+            updateQRCode(false)
         };
     window.addEventListener("resize", on_window_resize);
     // sometimes the event does not get called (for example when closing the browser console). So we call it regularly just to be sure
