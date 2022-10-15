@@ -268,10 +268,7 @@ If the layout looks strange, try resizing your browser window. It always tries t
     setInterval(on_window_resize, 1000)
     // Call it shortly after loading the page to determine the inital layout
     setTimeout(on_window_resize, 10);
-</script>
 
-<script>
-    // All the clipboard monitoring stuff is here in a separate script, so that you can delete it if you don't need it (makes the file smaller)
     if (SHOW_CLIPBOARD_MONITORING_CONTROLS) {
         let monitor_clipboard_enabled = false;
         let clipboard_interval_handle;
@@ -332,12 +329,10 @@ If the layout looks strange, try resizing your browser window. It always tries t
             }
         };
     }
-</script>
-<script>
-    // https://github.com/nimiq/qr-creator, MIT License, Copyright (c) 2017 The Nimiq Foundation
-    // Minified version from https://cdn.jsdelivr.net/npm/qr-creator/dist/qr-creator.min.js
-    /*
-jquery-qrcode v0.14.0 - https://larsjung.de/jquery-qrcode/ */
+
+// ======= https://github.com/nimiq/qr-creator, MIT License, Copyright (c) 2017 The Nimiq Foundation =======
+// Minified version from https://cdn.jsdelivr.net/npm/qr-creator/dist/qr-creator.min.js
+/* jquery-qrcode v0.14.0 - https://larsjung.de/jquery-qrcode/ */
 'use strict';let G=null;class H{}H.render=function(w,B){G(w,B)};self.QrCreator=H;
 (function(w){function B(t,c,a,e){var b={},h=w(a,c);h.u(t);h.J();e=e||0;var r=h.h(),d=h.h()+2*e;b.text=t;b.level=c;b.version=a;b.O=d;b.a=function(b,a){b-=e;a-=e;return 0>b||b>=r||0>a||a>=r?!1:h.a(b,a)};return b}function C(t,c,a,e,b,h,r,d,g,x){function u(b,a,f,c,d,r,g){b?(t.lineTo(a+r,f+g),t.arcTo(a,f,c,d,h)):t.lineTo(a,f)}r?t.moveTo(c+h,a):t.moveTo(c,a);u(d,e,a,e,b,-h,0);u(g,e,b,c,b,0,-h);u(x,c,b,c,a,h,0);u(r,c,a,e,a,0,h)}function z(t,c,a,e,b,h,r,d,g,x){function u(b,a,c,d){t.moveTo(b+c,a);t.lineTo(b,
 a);t.lineTo(b,a+d);t.arcTo(b,a,b+c,a,h)}r&&u(c,a,h,h);d&&u(e,a,-h,h);g&&u(e,b,-h,-h);x&&u(c,b,h,-h)}function A(t,c){var a=c.fill;if("string"===typeof a)t.fillStyle=a;else{var e=a.type,b=a.colorStops;a=a.position.map((b)=>Math.round(b*c.size));if("linear-gradient"===e)var h=t.createLinearGradient.apply(t,a);else if("radial-gradient"===e)h=t.createRadialGradient.apply(t,a);else throw Error("Unsupported fill");b.forEach(([b,a])=>{h.addColorStop(b,a)});t.fillStyle=h}}function y(t,c){a:{var a=c.text,e=
