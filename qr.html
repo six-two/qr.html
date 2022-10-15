@@ -274,12 +274,32 @@ If the layout looks strange, try resizing your browser window. It always tries t
     // All the clipboard monitoring stuff is here in a separate script, so that you can delete it if you don't need it (makes the file smaller)
     if (SHOW_CLIPBOARD_MONITORING_CONTROLS) {
         let monitor_clipboard_enabled = false;
+        let clipboard_interval_handle;
+
         const monitor_clipboard_menuitem = document.getElementById("monitor-clipboard");
         const update_cb_mon_menuitem = () => monitor_clipboard_menuitem.innerHTML = monitor_clipboard_enabled ? "Stop clipboard monitoring" : "Start clipboard monitoring";
         monitor_clipboard_menuitem.addEventListener("click", () => {
-            monitor_clipboard_enabled = !monitor_clipboard_enabled;
+            if (window.isSecureContext) {
+                if (monitor_clipboard_enabled) {
+                    console.log("Stopping clipboard monitoring");
+                    clearInterval(clipboard_interval_handle);
+                    monitor_clipboard_enabled = false;
+                    showInputError(); // clear the error just in case it was caused by the clipboard
+                } else {
+                    console.log("Starting clipboard monitoring");
+                    clipboard_interval_handle = setInterval(check_clipboard, 100);
+                    monitor_clipboard_enabled = true;
+                }
+            } else {
+                if (monitor_clipboard_enabled) {
+                    // enable the user to hide the message by pressing stop
+                    showInputError();
+                } else {
+                    showInputError("Clipboard can not be monitored, because the page is not a secure context. See https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts for more details.")
+                }
+                monitor_clipboard_enabled = !monitor_clipboard_enabled;
+            }
             update_cb_mon_menuitem()
-            showInputError(); // clear the error just in case it was caused by the clipboard
         });
         update_cb_mon_menuitem();
 
@@ -287,7 +307,7 @@ If the layout looks strange, try resizing your browser window. It always tries t
 
         const check_clipboard = () => {
             if (monitor_clipboard_enabled) {
-                console.log("Reading clipboard");
+                console.debug("Reading clipboard");
                 let clipboard_promise;
                 try {
                     clipboard_promise = navigator.clipboard.readText();
@@ -311,13 +331,6 @@ If the layout looks strange, try resizing your browser window. It always tries t
                 });
             }
         };
-
-        console.log("Is Secure Context?", window.isSecureContext);
-        if (window.isSecureContext) {
-            setInterval(check_clipboard, 1000);
-        } else {
-            clipboard_div.innerHTML = '<div class="error">Clipboard can not be monitored, because the page is not a <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Secure_Contexts">secure context</a></div>'
-        }
     }
 </script>
 <script>
