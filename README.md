@@ -67,7 +67,7 @@ Drag and drop file | Yes | No | Yes
 
 The idea is to watch the clipboard constantly (as far as allowed by the browser).
 
-Use case: Allow using guest clipboard on host (via [a script that parses QR code and puts its content's in the clipboard](https://gitlab.com/six-two/wm-config/-/blob/main/bin/copy-qr-code)), when working with a VM, Citrix, or similar system where clipboard sharing may not work/be enabled.
+Use case: Allow using guest clipboard on host (via [a script that parses QR code and puts its content's in the clipboard](https://gitlab.com/six-two/bin/-/blob/main/general/copy-qr-code)), when working with a VM, Citrix, or similar system where clipboard sharing may not work/be enabled.
 
 Limits: Browsers only allow clipboard access when the specific tab and window are focused, browser support is terrible (probably since this is easy to abuse if the permission handling is not well implemented).
 
@@ -88,6 +88,8 @@ Wifi-Network (WPA2 Personal) | `WIFI:T:WPA;S:<name>;P:<password>;;` | WIFI:T:WPA
 
 ## Changelog
 
+- You can now set values from the browser's console
+- Added support for a border around the QR code
 - Created a basic minified version (tiny-qr.html)
 - Added drag & drop and file copy pasting support
 - Added clipboard monitoring support. When the user enables the checkbox, the QR code is updated every time the clipboard changes. This feature can be completely disabled by modifying `qr.html` and setting `SHOW_CLIPBOARD_MONITORING_CONTROLS` to `false`.
