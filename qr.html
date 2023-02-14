@@ -8,6 +8,18 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data:;">
     <title>Offline QR code generator</title>
     <script>
+        const get_or_default_int = (name, default_value) => {
+            const stored = localStorage.getItem(name);
+            if (stored != null) {
+                try {
+                    return parseInt(stored);
+                } catch (error) {
+                    console.warn(`Failed to parse stored entry for '${name}'`);
+                }
+            }
+            return default_value;
+        }
+
         // ================== Start of user settings ==================
         // You can modify these settings without breaking stuff
         
@@ -15,19 +27,19 @@
         // Level M – up to 15% damage
         // Level Q – up to 25% damage
         // Level H – up to 30% damage
-        const ERROR_CORRECTION_LEVEL = "L";
-        const MAX_TEXT_LENGTH = 2950;// Only valid for Error Correction Level L
+        let ERROR_CORRECTION_LEVEL = localStorage.getItem("ERROR_CORRECTION_LEVEL") || "L";
+        let MAX_TEXT_LENGTH = get_or_default_int("MAX_TEXT_LENGTH", 2950);// Only valid for Error Correction Level L, less for other levels
 
         // Allow users to enable the clipboard monitoring function. Set this to false to hide the checkbox
-        const SHOW_CLIPBOARD_MONITORING_CONTROLS = true;
+        let SHOW_CLIPBOARD_MONITORING_CONTROLS = true;
 
         // Size of the QR code in pixels. Set it to 0 to automatically fit the free space
-        const QR_MIN_SIZE = 30;
-        const QR_MAX_SIZE = Infinity;
+        let QR_MIN_SIZE = get_or_default_int("QR_MIN_SIZE", 30); //in pixels
+        let QR_MAX_SIZE = get_or_default_int("QR_MAX_SIZE", Infinity); // in pixels
         
         // If you want a border around the QR code (that will stay when you right click -> "Save image as..." the image, set this to something greater than zero)
-        const QR_BORDER_SIZE = 0;
-        const QR_BORDER_COLOR = "#909090"
+        let QR_BORDER_SIZE = get_or_default_int("QR_BORDER_SIZE", 0); // in pixels
+        let QR_BORDER_COLOR = localStorage.getItem("QR_BORDER_COLOR") || "#909090"; // standard html color codes
         // =================== End of user settings ===================
     </script>
     

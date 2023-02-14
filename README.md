@@ -7,6 +7,20 @@ You can use it to exchange data with your phone, exfiltrate data from a VM, or w
 
 You can try out the live demo at [qr.15c.me/qr.html](https://qr.15c.me/qr.html).
 
+## customization
+
+At the top of the file are some variables that you can use to customize the QR code.
+You can also temporarily overwrite item in your browser console:
+```
+QR_BORDER_COLOR="#ff0000" 
+```
+
+Most variables can also be read from local storage, so you can permanently store settings while using the hosted version.
+To set a value, you execute something like the following in your browser's console:
+```
+localStorage.setItem("QR_BORDER_SIZE", "30")
+```
+
 ## tiny-qr.html
 
 If you have no direct channel to your target system (say you have a Citrix with no internet and clipboard & file upload disabled), you can use `tiny-qr.html`.
