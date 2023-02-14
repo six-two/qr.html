@@ -24,6 +24,10 @@
         // Size of the QR code in pixels. Set it to 0 to automatically fit the free space
         const QR_MIN_SIZE = 30;
         const QR_MAX_SIZE = Infinity;
+        
+        // If you want a border around the QR code (that will stay when you right click -> "Save image as..." the image, set this to something greater than zero)
+        const QR_BORDER_SIZE = 0;
+        const QR_BORDER_COLOR = "#909090"
         // =================== End of user settings ===================
     </script>
     
@@ -180,6 +184,7 @@ If the layout looks strange, try resizing your browser window. It always tries t
         } else {
             // Delete the error message (in case it existed) or the old QR code
             qrcode.innerHTML = "";
+            // @TODO: I probably could do that border stuff more efficiently if I prepared a canvas and passed it to the render method
             try {
                 QrCreator.render({
                     text: text,
@@ -187,10 +192,27 @@ If the layout looks strange, try resizing your browser window. It always tries t
                     ecLevel: ERROR_CORRECTION_LEVEL,
                     fill: '#000000',
                     background: "#ffffff",
-                    size: qr_size,
+                    size: qr_size - 2 * QR_BORDER_SIZE,
                 }, qrcode);
+
+                if (QR_BORDER_SIZE > 0) {
+                    const canvas = qrcode.getElementsByTagName("canvas")[0];
+                    // copy the old image
+                    const image = document.createElement("img");
+                    image.src = canvas.toDataURL();
+
+                    ctx = canvas.getContext('2d');
+                    // clear the whole image by filling it with the border color
+                    ctx.fillStyle = QR_BORDER_COLOR;
+                    ctx.fillRect(0, 0, qr_size, qr_size);
+                    // Copy the saved image, but make it smaller, so that a bit of the border remains
+                    ctx.drawImage(image, 0, 0, qr_size, qr_size,
+                        QR_BORDER_SIZE, QR_BORDER_SIZE, qr_size - 2 * QR_BORDER_SIZE, qr_size - 2 * QR_BORDER_SIZE);
+                    console.log(QR_BORDER_SIZE, qr_size - 2 * QR_BORDER_SIZE);
+                }
             } catch (error) {
                 showQrCodeGenerationError("Failed to generate the QR code! Please try a shorter text and try removing special characters and emojis. If you are a programmer, look in the prowser console for the error message");
+                console.error("Error while generating QR code", error);
             }
         }
     };
