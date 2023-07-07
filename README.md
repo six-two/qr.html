@@ -88,6 +88,7 @@ Wifi-Network (WPA2 Personal) | `WIFI:T:WPA;S:<name>;P:<password>;;` | WIFI:T:WPA
 
 ## Changelog
 
+- You can provide an initial value for the textbox (and QR code) after a hashtag in the URL like this: <https://qr.15c.me/qr.html#Hello,%20world!%F0%9F%8E%89>
 - You can now set values from the browser's console
 - Added support for a border around the QR code
 - Created a basic minified version (tiny-qr.html)

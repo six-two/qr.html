@@ -164,6 +164,15 @@ If the layout looks strange, try resizing your browser window. It always tries t
     const input_error = document.getElementById("input-error");
     const text_and_qr = document.getElementById("text-and-qr");
 
+    // You can set the initial value of the page via the # after the URL. This enables stuff like links and bookmarks for common values
+    // we use the hash instead of an URL parameter, since the hash is never sent to a server -> better privacy (only relevant if you use the hosted version)
+    if (location.hash.length > 1) {
+        let initial_value = location.hash.slice(1); // remove leading '#'
+        initial_value = decodeURIComponent(initial_value); // URL encoded because of special characters
+        console.log("Using initial value from URL hash:", initial_value);
+        input_area.value = initial_value;
+    }
+
     const PADDING = 10; // 5px on any side for the text-and-qr element -> always 10px in total
     
     const showInputError = (message) => {
