@@ -39,13 +39,15 @@ It is a very basic QR code generator optimized for size, so that you can transfe
 - Simplified layout
 - Use of short (mostly 1 letter) variable names, removed all comments
 - When alternative syntaxes for something exist, using the shortest one
-- The file is only approximately half as long (12916 characters vs 24863 characters at the time of writing)
+- The file is less than half the size (12938 bytes vs 29655 bytes at the time of writing)[^3]
+
+[^3]: 2023-07-13, On MacOS. Depending on how you configured git / downloaded the file the line endings may change. That may add or subtract a couple bytes
 
 You can try out the live demo at [qr.15c.me/tiny-qr.html](https://qr.15c.me/tiny-qr.html).
 
 ## Known issues
 
-- QR code size limitation: A maximum of 2950 characters can be used with error correction level L, less if you choose better error correction.
+- QR code size limitation: A maximum of 2953 characters can be used with error correction level L, less if you choose better error correction.
 - When opening `qr.html` using a file URL in chromium and enabling the clipboard monitoring, a permissions dialog is triggered every time the clipboard is read (every second).
 
 ## Additional features
