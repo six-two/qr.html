@@ -23,12 +23,19 @@
         // ================== Start of user settings ==================
         // You can modify these settings without breaking stuff
         
-        // ERROR_CORRECTION_LEVEL L – up to 7% damage - MAX_TEXT_LENGTH: 2950
-        // ERROR_CORRECTION_LEVEL M – up to 15% damage - MAX_TEXT_LENGTH: 2330
-        // ERROR_CORRECTION_LEVEL Q – up to 25% damage - MAX_TEXT_LENGTH: 1660
-        // ERROR_CORRECTION_LEVEL H – up to 30% damage - MAX_TEXT_LENGTH: 1270
+        // Thanks to @d3xbot for providing the numbers
+        // ERROR_CORRECTION_LEVEL L – up to 7% damage - MAX_TEXT_LENGTH: 2953
+        // ERROR_CORRECTION_LEVEL M – up to 15% damage - MAX_TEXT_LENGTH: 2331
+        // ERROR_CORRECTION_LEVEL Q – up to 25% damage - MAX_TEXT_LENGTH: 1663
+        // ERROR_CORRECTION_LEVEL H – up to 30% damage - MAX_TEXT_LENGTH: 1273
         let ERROR_CORRECTION_LEVEL = localStorage.getItem("ERROR_CORRECTION_LEVEL") || "L";
-        let MAX_TEXT_LENGTH = get_or_default_int("MAX_TEXT_LENGTH", 2950);
+        // Automatically select the matching maximum size
+        let MAX_TEXT_LENGTH = {
+            "L": 2953,
+            "M": 2331,
+            "Q": 1663,
+            "H": 1273,
+        }[ERROR_CORRECTION_LEVEL];
 
         // Allow users to enable the clipboard monitoring function. Set this to false to hide the checkbox
         let SHOW_CLIPBOARD_MONITORING_CONTROLS = true;
