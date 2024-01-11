@@ -81,12 +81,12 @@ Copy a file from your OS file explorer and paste it into your browser to generat
 
 Use case | Format | Example
 ---|---|---
-Website | `<url>` | https://example.com/test/page?abc=def#title
-Phone number | `tel:<phone>` | tel:+49-1234-567890
-Send SMS | `smsto:<phone>:<message>` | smsto:+49-1234-567890:Hi there, this is a test SMS
-Email (only address) | `mailto:<email>` | mailto:user@example.com
-Email | `mailto:<email>?subject=<subject>&body=<body>` | mailto:email@example.com?subject=Test email subject&body=This is a test email
-Wifi-Network (WPA2 Personal) | `WIFI:T:WPA;S:<name>;P:<password>;;` | WIFI:T:WPA;S:GuestWifi;P:Password123!;;
+Website | <tt><i>url</i></tt> | `https://example.com/test/page?abc=def#title`
+Phone number | <tt>tel:<i>phone</i></tt> | `tel:+491234567890`
+Send SMS | <tt>smsto:<i>phone</i>:<i>message</i></tt> | `smsto:+491234567890:Hi there, this is a test SMS`
+Email (only address) | <tt>mailto:<i>email@address</i></tt> | `mailto:user@example.com`
+Email | <tt>mailto:<i>email@address</i>?subject=<i>subject</i>&body=<i>body</i></tt> | `mailto:email@example.com?subject=Test email subject&body=This is a test email`
+WiFi Network (SSID) | <tt>WIFI:T:WPA;S:<i>name</i>;P:<i>password</i>;;<tt> | `WIFI:T:WPA;S:GuestWifi;P:Password123!;;`
 
 ## Changelog
 
