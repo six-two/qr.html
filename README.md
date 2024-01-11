@@ -10,7 +10,7 @@ You can try out the live demo at [qr.15c.me/qr.html](https://qr.15c.me/qr.html).
 ## customization
 
 At the top of the file are some variables that you can use to customize the QR code.
-You can also temporarily overwrite item in your browser console:
+You can also temporarily override these in your browser console:
 ```
 QR_BORDER_COLOR="#ff0000" 
 ```
@@ -96,7 +96,7 @@ Wifi-Network (WPA2 Personal) | `WIFI:T:WPA;S:<name>;P:<password>;;` | WIFI:T:WPA
 - Created a basic minified version (tiny-qr.html)
 - Added drag & drop and file copy pasting support
 - Added clipboard monitoring support. When the user enables the checkbox, the QR code is updated every time the clipboard changes. This feature can be completely disabled by modifying `qr.html` and setting `SHOW_CLIPBOARD_MONITORING_CONTROLS` to `false`.
-- Changed QR code generator library from [qrcodejs](https://github.com/davidshimjs/qrcodejs) to [qr-creator](https://github.com/nimiq/qr-creator), beacuse qrcodejs is no longer maintained and buggy (had problems with Unicode). Even the better maintained fork (https://github.com/zhiyuan-l/qrcodejs) still had the same problem sometimes
+- Changed QR code generator library from [qrcodejs](https://github.com/davidshimjs/qrcodejs) to [qr-creator](https://github.com/nimiq/qr-creator), because qrcodejs is no longer maintained and buggy (had problems with Unicode). Even the better maintained fork (https://github.com/zhiyuan-l/qrcodejs) still had the same problem sometimes
 
 
 ## License
