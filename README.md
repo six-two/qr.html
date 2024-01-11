@@ -12,7 +12,7 @@ You can try out the live demo at [qr.15c.me/qr.html](https://qr.15c.me/qr.html).
 At the top of the file are some variables that you can use to customize the QR code.
 You can also temporarily override these in your browser console:
 ```
-QR_BORDER_COLOR="#ff0000" 
+QR_BORDER_COLOR="#ff0000"
 ```
 
 Most variables can also be read from local storage, so you can permanently store settings while using the hosted version.
@@ -98,8 +98,6 @@ Wifi-Network (WPA2 Personal) | `WIFI:T:WPA;S:<name>;P:<password>;;` | WIFI:T:WPA
 - Added clipboard monitoring support. When the user enables the checkbox, the QR code is updated every time the clipboard changes. This feature can be completely disabled by modifying `qr.html` and setting `SHOW_CLIPBOARD_MONITORING_CONTROLS` to `false`.
 - Changed QR code generator library from [qrcodejs](https://github.com/davidshimjs/qrcodejs) to [qr-creator](https://github.com/nimiq/qr-creator), because qrcodejs is no longer maintained, and has problems with Unicode. Even Zhi Yuan's [better maintained fork](https://github.com/zhiyuan-l/qrcodejs) still sometimes has the same problem.
 
-
 ## License
 - You can do whatever you want with my own code, since it is licensed under "The Unlicense".
 - `qr-creator` is licensed under the MIT License (see https://github.com/nimiq/qr-creator)
-
