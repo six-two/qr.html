@@ -22,7 +22,7 @@
 
         // ================== Start of user settings ==================
         // You can modify these settings without breaking stuff
-        
+
         // Thanks to @d3xbot for providing the numbers
         // ERROR_CORRECTION_LEVEL L – up to 7% damage - MAX_TEXT_LENGTH: 2953
         // ERROR_CORRECTION_LEVEL M – up to 15% damage - MAX_TEXT_LENGTH: 2331
@@ -36,13 +36,13 @@
         // Size of the QR code in pixels. Set it to 0 to automatically fit the free space
         let QR_MIN_SIZE = get_or_default_int("QR_MIN_SIZE", 30); //in pixels
         let QR_MAX_SIZE = get_or_default_int("QR_MAX_SIZE", Infinity); // in pixels
-        
+
         // If you want a border around the QR code (that will stay when you right click -> "Save image as..." the image, set this to something greater than zero)
         let QR_BORDER_SIZE = get_or_default_int("QR_BORDER_SIZE", 0); // in pixels
         let QR_BORDER_COLOR = localStorage.getItem("QR_BORDER_COLOR") || "#909090"; // standard html color codes
         // =================== End of user settings ===================
     </script>
-    
+
     <style>
         * {
             box-sizing: border-box;
@@ -98,7 +98,7 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         #input {
             width: 100%;
             height: 100%;
@@ -110,7 +110,7 @@
             margin-bottom: 10px;
             display: none;
         }
-        
+
         .error {
             width: 100%;
             background-color: rgb(255, 140, 140);
@@ -135,7 +135,7 @@
     <header id="header">
         <div class="title">Offline QR code generator</div>
         <div class="expand"></div>
-        
+
         <div id="monitor-clipboard" class="button"></div>
         <a id="download" href="" download>Download</a>
         <a href="https://github.com/six-two/qr.html" target="_blank" rel="noopener noreferrer">Source code</a>
@@ -166,7 +166,6 @@ If the layout looks strange, try resizing your browser window. It always tries t
         "H": 1273,
     };
 
-
     const header = document.getElementById("header");
     const qrcode = document.getElementById("qrcode");
     const input_area = document.getElementById("input");
@@ -183,7 +182,7 @@ If the layout looks strange, try resizing your browser window. It always tries t
     }
 
     const PADDING = 10; // 5px on any side for the text-and-qr element -> always 10px in total
-    
+
     const showInputError = (message) => {
         // message is untrusted input, so we should escape it properly
         if (message) {
@@ -200,7 +199,7 @@ If the layout looks strange, try resizing your browser window. It always tries t
         // Bad practice, but XSS should not be possible
         qrcode.innerHTML = `<div class="error"><b>QR code generation failed:</b><br>${message}</div>`;
     }
-    
+
     const updateQRCode = () => {
         const max_size_fit_window = Math.min(qrcode.clientWidth, qrcode.clientHeight, QR_MAX_SIZE);
         const qr_size = Math.max(QR_MIN_SIZE, max_size_fit_window) - 10; // remove 2 * 5px for the paddings
