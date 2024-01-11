@@ -18,7 +18,7 @@
     <h3>Generator</h3>
     <label>Link: </label><input data-demo="link" value="https://qr.15c.me/qr.html"></label>
     <div id="div-link"></div>
-    
+
     <h2>WLAN network</h2>
     <p>When you scan the code you will be offered to join the network. No need to manually type the name or password.</p>
     <p>Format: <code>WIFI:T:WPA;S:${NETWORK_NAME};P:${PASSWORD};;</code></p>
@@ -55,7 +55,7 @@
                     const wlan_password = document.getElementById("wlan-password").value;
                     area.value = `WIFI:T:WPA;S:${wlan_ssid};P:${wlan_password};;`;
                 }
-                // @TODO: add all types of 
+                // @TODO: add all types of
             };
             input.addEventListener("change", on_update);//confirmed with enter
             input.addEventListener("input", on_update);// while typing
