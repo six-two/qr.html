@@ -81,12 +81,12 @@ Copy a file from your OS file explorer and paste it into your browser to generat
 
 Use case | Format | Example
 ---|---|---
-Website | <tt><i>url</i></tt> | `https://example.com/test/page?abc=def#title`
-Phone number | <tt>tel:<i>phone</i></tt> | `tel:+491234567890`
-Send SMS | <tt>smsto:<i>phone</i>:<i>message</i></tt> | `smsto:+491234567890:Hi there, this is a test SMS`
-Email (only address) | <tt>mailto:<i>email@address</i></tt> | `mailto:user@example.com`
-Email | <tt>mailto:<i>email@address</i>?subject=<i>subject</i>&body=<i>body</i></tt> | `mailto:email@example.com?subject=Test email subject&body=This is a test email`
-WiFi Network (SSID) | <tt>WIFI:T:WPA;S:<i>name</i>;P:<i>password</i>;;<tt> | `WIFI:T:WPA;S:GuestWifi;P:Password123!;;`
+Website | <code><b>url</b></code> | `https://example.com/test/page?abc=def#title`
+Phone number | <code>tel:<b>phone</b></code> | `tel:+491234567890`
+Send SMS | <code>smsto:<b>phone</b>:<b>message</b></code> | `smsto:+491234567890:Hi there, this is a test SMS`
+Email (only address) | <code>mailto:<b>email@address</b></code> | `mailto:user@example.com`
+Email | <code>mailto:<b>email@address</b>?subject=<b>subject</b>&body=<b>body</b></code> | `mailto:email@example.com?subject=Test email subject&body=This is a test email`
+WiFi Network (SSID) | <code>WIFI:T:WPA;S:<b>name</b>;P:<b>password</b>;;</code> | `WIFI:T:WPA;S:GuestWifi;P:Password123!;;`
 
 ## Changelog
 
