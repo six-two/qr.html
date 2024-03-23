@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Make sure that no communication with external sites is possible -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' data:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:;">
     <title>Offline QR code generator</title>
     <script>
         const get_or_default_int = (name, default_value) => {
@@ -143,15 +143,24 @@
     <div id="text-and-qr">
         <div id="input-div">
             <div id="input-error" class="error"></div>
-            <textarea id="input" name="input" id="" autofocus>You can generate QR codes from any text by typing in in this box. The code generation is performed on your local device, no data is sent anywhere.
+            <textarea id="input" name="input" placeholder="Type the data you want to convert to a QR code here. Alternatively you can try to drag and drop or copy-paste a file in this text box, but not all browsers/operating systems support that." id="" autofocus>You can generate QR codes from any text by typing in in this box. The code generation is performed on your local device, no data is sent anywhere.
 You can even download this file (see button on the top right) and use it when you are not connected to the Internet.
 If the layout looks strange, try resizing your browser window. It always tries to maximize the QR code's size, which can look strange sometimes.
 
-⚠️ The maximum size of a QR code is 2950 bytes
+⚠️ The maximum size of a QR code is 2953 bytes (one character is normally one byte, although foreign language characters and emojis take up multiple bytes)
 ⚠️ Some features will not work in some browsers. In my experience Google Chrome works best.
 🎉 This should now also work with Emojis
 📁 You can now drag and drop a file in this text box
 📁 And you can copy-paste a file to this text area
+
+Here are some examples of what you can do with QR codes:
+- Link to a website: https://your-website.com/some/page?with=parameters
+- Share email address: mailto:your.name@gmail.com
+- Share phone number: tel:+49123456789
+- Share WLAN network password: WIFI:T:WPA;S:Your WLAN name;P:Your WLAN password;;
+- Send SMS: smsto:+49123456789:Hi John, how are you? 
+- Send email: mailto:recipient@example.com?subject=Test email&body=This is a test email
+- Add second factor to Google Authenticator: otpauth://totp/Issuer Name:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Issuer Name
 </textarea>
         </div>
         <div id="qrcode"><div class="error">You need to enable JavaScript to use this page</div></div>
@@ -172,14 +181,20 @@ If the layout looks strange, try resizing your browser window. It always tries t
     const input_error = document.getElementById("input-error");
     const text_and_qr = document.getElementById("text-and-qr");
 
+    const onHashUpdate = () => {
+        if (location.hash.length > 1) {
+            let initial_value = location.hash.slice(1); // remove leading '#'
+            initial_value = decodeURIComponent(initial_value); // URL encoded because of special characters
+            console.log("Using initial value from URL hash:", initial_value);
+            input_area.value = initial_value;
+        }
+    }
+
     // You can set the initial value of the page via the # after the URL. This enables stuff like links and bookmarks for common values
     // we use the hash instead of an URL parameter, since the hash is never sent to a server -> better privacy (only relevant if you use the hosted version)
-    if (location.hash.length > 1) {
-        let initial_value = location.hash.slice(1); // remove leading '#'
-        initial_value = decodeURIComponent(initial_value); // URL encoded because of special characters
-        console.log("Using initial value from URL hash:", initial_value);
-        input_area.value = initial_value;
-    }
+    onHashUpdate();
+    // If the user changes the hash, we should update the text box with it
+    window.addEventListener("hashchange", onHashUpdate);
 
     const PADDING = 10; // 5px on any side for the text-and-qr element -> always 10px in total
 
