@@ -24,10 +24,10 @@
         // You can modify these settings without breaking stuff
 
         // Thanks to @d3xbot for providing the numbers
-        // ERROR_CORRECTION_LEVEL L – up to 7% damage - MAX_TEXT_LENGTH: 2953
-        // ERROR_CORRECTION_LEVEL M – up to 15% damage - MAX_TEXT_LENGTH: 2331
-        // ERROR_CORRECTION_LEVEL Q – up to 25% damage - MAX_TEXT_LENGTH: 1663
-        // ERROR_CORRECTION_LEVEL H – up to 30% damage - MAX_TEXT_LENGTH: 1273
+        // ERROR_CORRECTION_LEVEL L – up to 7% damage - MAX_BYTES: 2953
+        // ERROR_CORRECTION_LEVEL M – up to 15% damage - MAX_BYTES: 2331
+        // ERROR_CORRECTION_LEVEL Q – up to 25% damage - MAX_BYTES: 1663
+        // ERROR_CORRECTION_LEVEL H – up to 30% damage - MAX_BYTES: 1273
         let ERROR_CORRECTION_LEVEL = localStorage.getItem("ERROR_CORRECTION_LEVEL") || "L";
 
         // Allow users to enable the clipboard monitoring function. Set this to false to hide the checkbox
@@ -180,11 +180,8 @@ Here are some examples of what you can do with QR codes:
     let estimated_size_emoji = "TODO";
 
     window.addEventListener("load", () => {
-        ecc_level = qrcodegen.QrCode.Ecc.LOW;
-        max_size_digits = getMaxQrCodeLength("0", ecc_level);
-        max_size_alpha_numeric = getMaxQrCodeLength("A", ecc_level);
-        max_size_byte = getMaxQrCodeLength("a", ecc_level);
-        estimated_size_emoji = getMaxQrCodeLength("😀", ecc_level);
+        // This needs to be done after loading the library
+        setEccLevel(ERROR_CORRECTION_LEVEL);
     })
 
     const onHashUpdate = () => {
@@ -235,6 +232,16 @@ Here are some examples of what you can do with QR codes:
             const qr_code_object = qrcodegen.QrCode.encodeText(text, ecc_level);
             qrcode.innerHTML = toSvgString(qr_code_object, QR_BORDER_SIZE, "white", "black");
         } catch (error) {
+            suggestions = '<li><a href="javascript:fixByCuttingTextOfAfterQrCodeMaximumSize()">Cut off the input that does not fit into the QR code</a>';
+            if (/[^A-Z0-9 $%*+.\/:-]+/.test(text)) {
+                // Contains non alphanum characters
+                suggestions += '<li><a href="javascript:tryFixByConvertingToAlphaNum()">Convert to alpha numeric: Try to map Unicode to nearest ASCII character, make all letters uppercase and remove all special or unicode characters except for "$%*+-./:".</a>';
+            }
+            if (ecc_level != qrcodegen.QrCode.Ecc.LOW) {
+                // The ecc level is not at the lowest setting
+                suggestions += `<li><a href="javascript:setEccLevel('L')">Use the lowest error correction level</a>`
+            }
+
             showQrCodeGenerationError(`Failed to generate the QR code! Your text is ${text.length} characters long. Please try a shorter text and try removing special characters and emojis. Maximum length depends on the contents and error correction level. With the current error correction level you can fit the following number of characters:
 
 <ul>
@@ -242,29 +249,91 @@ Here are some examples of what you can do with QR codes:
 <li>alphanumeric (<i>0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:</i>) -> ${max_size_alpha_numeric}
 <li>byte (<i>Any ASCII character</i>) -> ${max_size_byte}
 <li>Emoji (<i>Stadard emoji without modifiers like 😀</i>) -> Around ${estimated_size_emoji}
-</ul>`);
+</ul>
+<br>
+The following functions can try to help:
+<ul>
+    ${suggestions}
+</ul>
+`);
                // console.error("Error while generating QR code", error);
         }
     };
 
-    const getMaxQrCodeLength = (character, ecc_level) => {
-        // Binary search for the maximum QR code length
-        let min = 0;
-        let max = 7089; // From https://en.wikipedia.org/wiki/QR_code#Information_capacity -> numeric only
-        while (min < max) {
-            const middle = Math.ceil((min + max) / 2);
-            try {
-                qrcodegen.QrCode.encodeText(character.repeat(middle), ecc_level);
-                // QR code generation worked -> set minimum to this size
-                min = middle;
-            } catch {
-                // QR code generation failed -> set maximum to middle - 1
-                max = middle - 1;
-            }
-            // console.log(`Test ${character}: between ${min} and ${max}`);
+    const setEccLevel = (eccLevelString) => {
+        const ECC_MAP = {
+            "L": qrcodegen.QrCode.Ecc.LOW,
+            "M": qrcodegen.QrCode.Ecc.MEDIUM,
+            "Q": qrcodegen.QrCode.Ecc.QUARTILE,
+            "H": qrcodegen.QrCode.Ecc.HIGH,
         }
-        console.log(`Test ${character}: determined maxiumu length ${min}`);
-        return min;
+        try {
+            ecc_level = ECC_MAP[eccLevelString];
+        } catch {
+            console.warn(`Unknown error correction level '${eccLevelString}', defaulting to 'L' (low)`);
+            ecc_level = qrcodegen.QrCode.Ecc.LOW;
+        }
+        max_size_digits = getMaxQrCodeLength("0", ecc_level);
+        max_size_alpha_numeric = getMaxQrCodeLength("A", ecc_level);
+        max_size_byte = getMaxQrCodeLength("a", ecc_level);
+        estimated_size_emoji = getMaxQrCodeLength("😀", ecc_level);
+    }
+
+    const fixByCuttingTextOfAfterQrCodeMaximumSize = () => {
+        input_area.value = getMaxQrCodeString(input_area.value, ecc_level);
+    }
+
+    const tryFixByConvertingToAlphaNum = () => {
+        input_area.value = unicodeToAlphanumericOnly(input_area.value);
+    }
+
+    const unicodeToAlphanumericOnly = (string) => {
+        // Convert all whitespace to spaces
+        string = string.replaceAll("\t", "    ").replaceAll(/\s/g, " ");
+
+        // This rewrites the unicode so that ä becomes a + a diacritic mark. Later on we can drop the diacritic. This way we convert it to the nearest unicode character
+        string = string.normalize("NFD");
+        
+        // The alphanumeric charset allows only uppercase characters, so we convert all lowercase ones
+        string = string.toUpperCase();
+
+        // Finally we drop all not allowed characters (or replace them with a place holder like '.'?)
+        string = string.replaceAll(/[^A-Z0-9 $%*+.\/:-]+/g, "");
+
+        return string;
+    }
+    window.test = unicodeToAlphanumericOnly;
+
+    const getMaxQrCodeLength = (character, ecc_level) => {
+        const string = character.repeat(7089); // From https://en.wikipedia.org/wiki/QR_code#Information_capacity -> maximum numeric only value
+        return getMaxQrCodeString(string, ecc_level).length;
+    }
+
+    const getMaxQrCodeString = (string_to_try_to_use, ecc_level) => {        
+        try {
+            // First check whether the whole string fits
+            qrcodegen.QrCode.encodeText(string_to_try_to_use, ecc_level);
+            return string_to_try_to_use
+        } catch {
+            // If not, binary search for the cutof point
+            let min = 0;
+            let max = string_to_try_to_use.length;
+            while (min < max) {
+                const middle = Math.ceil((min + max) / 2);
+                try {
+                    qrcodegen.QrCode.encodeText(string_to_try_to_use.slice(0, middle), ecc_level);
+                    // QR code generation worked -> set minimum to this size
+                    min = middle;
+                } catch (ex) {
+                    // QR code generation failed -> set maximum to middle - 1
+                    max = middle - 1;
+                    //console.error(ex);
+                }
+                console.log(`Max length between ${min} and ${max} for ${string_to_try_to_use.slice(0, 10)}...`);
+            }
+            console.log(`Determined maxiumu length ${min} for ${string_to_try_to_use.slice(0, 10)}...`);
+            return string_to_try_to_use.slice(0, min);
+        }
     }
 
     const handleFileUpload = (files) => {
