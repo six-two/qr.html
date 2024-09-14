@@ -1,25 +1,32 @@
 # qr.html
 
-`qr.html` is a self contained website, that can generate QR codes via [qr-creator](https://github.com/nimiq/qr-creator).
-Because it is fully self-contained, you can just download the file and open it on any computer that has a browser installed, no internet connection is needed.
+`qr.html` is a self contained website, that can generate QR codes via [nayuki's QR code generator library](https://github.com/nayuki/QR-Code-generator).
+Because it is fully self-contained, you can just download the file and open it on any computer that has a browser installed, no Internet connection is needed.
 
 You can use it to exchange data with your phone, exfiltrate data from a VM, or whatever else you use QR codes for.
 
 You can try out the live demo at [qr.15c.me/qr.html](https://qr.15c.me/qr.html).
 
-## customization
+## Customization
 
 At the top of the file are some variables that you can use to customize the QR code.
 You can also temporarily override these in your browser console:
-```
+```js
 QR_BORDER_COLOR="#ff0000"
 ```
 
 Most variables can also be read from local storage, so you can permanently store settings while using the hosted version.
 To set a value, you execute something like the following in your browser's console:
-```
+```js
 localStorage.setItem("QR_BORDER_SIZE", "30")
 ```
+
+## qr-legacy.html
+
+This version uses the [qr-creator](https://github.com/nimiq/qr-creator) engine, which always encodes text as bytes.
+While this is simplifies from a programming perspective (QR codes can always contain the exact same number of characters depending on the error correction level, regardless of the contents), this can result in bigger QR codes in some cases.
+It is kept around, since it was the previous main version and maybe some of you liked it more or maybe the new engine has some bugs, but will likely not receive much focus in the future.
+If you are unsure which version to use, I recommend choosing `qr.html` over this one.
 
 ## tiny-qr.html
 
@@ -90,6 +97,10 @@ WiFi Network (SSID) | <code>WIFI:T:WPA;S:<b>name</b>;P:<b>password</b>;;</code> 
 
 ## Changelog
 
+- 2024-09-14: Added more helpfull message when contents do not fit in a QR code with some actions that can help fix it.
+- 2024-09-14: Changed the underlying QR code library to one that can handle special input (only numbers or alpha numeric input) more efficiently.
+    This allows you to potentially store more information per QR code.
+    A copy of the site with the old library is available at `qr-legacy.html`, but will likely not receive much future development.
 - You can provide an initial value for the textbox (and QR code) after a hashtag in the URL like this: <https://qr.15c.me/qr.html#Hello,%20world!%F0%9F%8E%89>
 - You can now set values from the browser's console
 - Added support for a border around the QR code
