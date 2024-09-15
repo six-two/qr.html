@@ -95,6 +95,27 @@ Email (only address) | <code>mailto:<b>email@address</b></code> | `mailto:user@e
 Email | <code>mailto:<b>email@address</b>?subject=<b>subject</b>&body=<b>body</b></code> | `mailto:email@example.com?subject=Test email subject&body=This is a test email`
 WiFi Network (SSID) | <code>WIFI:T:WPA;S:<b>name</b>;P:<b>password</b>;;</code> | `WIFI:T:WPA;S:GuestWifi;P:Password123!;;`
 
+You can also store virtual business cards (vCard) in QR codes.
+They can be scanned with a phone to add that person as a new contact.
+The [vCard format](https://en.wikipedia.org/wiki/VCard#Properties) can be pretty complex, but below is a simple example:
+```
+BEGIN:VCARD
+VERSION:4.0
+FN:John Doe
+N:Doe;John;;;M.Sc.
+BDAY:--0203
+GENDER:M
+ORG:Example AG;IT Security Tester;Web Application Security Testing
+ROLE:IT Security Tester
+URL:https://example.com/
+EMAIL;TYPE=work:john.doe@example.com
+TEL;landline: +49 1234 567 890
+TEL;mobile: +41 79 123 45 67
+NOTE:At Example AG we provide it security solutions to customers all over the country. Contact us if you ever need a security review or pentest.
+END:VCARD
+```
+ 
+
 ## Changelog
 
 - 2024-09-14: Added more helpfull message when contents do not fit in a QR code with some actions that can help fix it.
