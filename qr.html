@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Make sure that no communication with external sites is possible -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:;">
-    <title>Offline QR code generator</title>
+    <title>PCM QR Code Generator</title>
     <script>
-        console.log("Offline QR code generator by github.com/six-two - Version 2024-09-14 - Nayuki Engine")
+        console.log("Offline QR code generator by github.com/maggie-lagos - Forked from six-two")
         const get_or_default_int = (name, default_value) => {
             const stored = localStorage.getItem(name);
             if (stored != null) {
@@ -16,7 +16,7 @@
                     return parseInt(stored);
                 } catch (error) {
                     console.warn(`Failed to parse stored entry for '${name}'`);
-                }
+                } 
             }
             return default_value;
         }
@@ -32,7 +32,7 @@
         let ERROR_CORRECTION_LEVEL = localStorage.getItem("ERROR_CORRECTION_LEVEL") || "L";
 
         // Allow users to enable the clipboard monitoring function. Set this to false to hide the checkbox
-        let SHOW_CLIPBOARD_MONITORING_CONTROLS = true;
+        let SHOW_CLIPBOARD_MONITORING_CONTROLS = false;
 
         // Size of the QR code in pixels. Set it to 0 to automatically fit the free space
         let QR_MIN_SIZE = get_or_default_int("QR_MIN_SIZE", 30); //in pixels
@@ -134,12 +134,13 @@
 </head>
 <body>
     <header id="header">
-        <div class="title">Offline QR code generator</div>
+        <div class="title">PCM QR Code Generator</div>
         <div class="expand"></div>
 
         <div id="monitor-clipboard" class="button"></div>
-        <a id="download" href="" download>Download</a>
-        <a href="https://github.com/six-two/qr.html" target="_blank" rel="noopener noreferrer">Source code</a>
+        
+        <!--<a id="download" href="" download>Download</a>-->
+        <!--<a href="https://github.com/six-two/qr.html" target="_blank" rel="noopener noreferrer">Source code</a>-->
     </header>
     <div id="text-and-qr">
         <div id="input-div">
@@ -162,7 +163,7 @@ Here are some examples of what you can do with QR codes:
 - Send SMS: smsto:+49123456789:Hi John, how are you? 
 - Send email: mailto:recipient@example.com?subject=Test email&body=This is a test email
 - Add second factor to Google Authenticator: otpauth://totp/Issuer Name:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Issuer Name
-</textarea>
+            </textarea>
         </div>
         <div id="qrcode"><div class="error">You need to enable JavaScript to use this page</div></div>
     </div>
@@ -499,7 +500,7 @@ a){let c=0;for(const d of b){b=d.mode.numCharCountBits(a);if(d.numChars>=1<<b)re
 (function(q){(function(m){class h{constructor(e,k){this.ordinal=e;this.formatBits=k}}h.LOW=new h(0,1);h.MEDIUM=new h(1,0);h.QUARTILE=new h(2,3);h.HIGH=new h(3,2);m.Ecc=h})(q.QrCode||(q.QrCode={}))})(qrcodegen||={});
 (function(q){(function(m){class h{constructor(e,k){this.modeBits=e;this.numBitsCharCount=k}numCharCountBits(e){return this.numBitsCharCount[Math.floor((e+7)/17)]}}h.NUMERIC=new h(1,[10,12,14]);h.ALPHANUMERIC=new h(2,[9,11,13]);h.BYTE=new h(4,[8,16,16]);h.KANJI=new h(8,[8,10,12]);h.ECI=new h(7,[0,0,0]);m.Mode=h})(q.QrSegment||(q.QrSegment={}))})(qrcodegen||={});
 
-// Returns a string of SVG code for an image depicting the given QR Code, with the given number
+    // Returns a string of SVG code for an image depicting the given QR Code, with the given number
 	// of border modules. The string always uses Unix newlines (\n), regardless of the platform.
 	function toSvgString(qr, border, lightColor, darkColor) {
 		if (border < 0)
