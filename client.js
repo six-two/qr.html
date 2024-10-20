@@ -19,7 +19,7 @@ const input_textarea = document.getElementById("input");
 const input_error = document.getElementById("input-error");
 
 const result = document.getElementById("result-div");
-const result_qrcode = document.getElementById("qrcode");
+const result_qr = document.getElementById("result-qr");
 const result_error = document.getElementById("result-error");
 
 // Size of the QR code in pixels. Set it to 0 to automatically fit the free space
@@ -29,14 +29,12 @@ let QR_MAX_SIZE = get_or_default_int("QR_MAX_SIZE", Infinity); // in pixels
 
 window.addEventListener("load", () => {
     result_error.style.display = "none";
-    // This needs to be done after loading the library
-    //setEccLevel(ERROR_CORRECTION_LEVEL);
 })
 
 const PADDING = 10; // 5px on any side for the text-and-qr element -> always 10px in total
 
 const showInputError = (message) => {
-    // message is untrusted input, so we should escape it properly
+    // escape message before showing
     if (message) {
         input_error.innerHTML = ""; // remove current children
         const messageElement = document.createTextNode(message);
@@ -50,6 +48,7 @@ const showInputError = (message) => {
 const showQrCodeGenerationError = (message) => {
     result_error.innerHTML = `${message}`;
     result_error.style.display = "block";
+    result_qr.innerHTML = '';
 }
 
 const on_window_resize = () => {
@@ -66,27 +65,21 @@ const on_window_resize = () => {
         const remaining_height = document.body.clientHeight - header.clientHeight - 100; // 100 is the minimum height of the input area div
         // portrait view -> vertical
         text_and_qr.style.flexDirection = "column";
-        result_qrcode.style.maxWidth = "";
-        result_qrcode.style.maxHeight = toStyleValue(Math.min(width, remaining_height));
+        result_qr.style.maxWidth = "";
+        result_qr.style.maxHeight = toStyleValue(Math.min(width, remaining_height));
     } else {
         // landscape view -> horizontal
         const remaining_width = document.body.clientWidth - 200; // 200 is the minimum width of the input area div
         text_and_qr.style.flexDirection = "row";
-        result_qrcode.style.maxWidth = toStyleValue(Math.min(height, remaining_width));
+        result_qr.style.maxWidth = toStyleValue(Math.min(height, remaining_width));
         // Workaround for QR code not shrinking
-        result_qrcode.style.maxHeight = toStyleValue(document.body.clientHeight - header.clientHeight);
+        result_qr.style.maxHeight = toStyleValue(document.body.clientHeight - header.clientHeight);
     }
 
     updateQRCode();
 };
 
 const updateQRCode = () => {
-    // TODO: update this to use a qr library that accepts logos
-    // npm install qr-code-styling
-
-
-    const max_size_fit_window = Math.min(result_qrcode.clientWidth, result_qrcode.clientHeight, QR_MAX_SIZE);
-    const qr_size = Math.max(QR_MIN_SIZE, max_size_fit_window) - 10; // remove 2 * 5px for the paddings
     const text = input_textarea.value;
 
     if (!text) {
@@ -95,9 +88,27 @@ const updateQRCode = () => {
     }
 
     try {
-        //const qr_code_object = qrcodegen.QrCode.encodeText(text, ecc_level);
-        const qr_code_object = "the QR code SVG will go here"
-        result_qrcode.innerHTML = qr_code_object //toSvgString(qr_code_object, QR_BORDER_SIZE, "white", "black");
+        qrCode = new QRCodeStyling({
+            width: 400,
+            height: 400,
+            type: "svg",
+            data: text,
+            image: "https://pcm-maggie.s3.amazonaws.com/pcm-logo.png",
+            dotsOptions: {
+                color: "#471b12",
+                type: "square"
+            },
+            imageOptions: {
+                crossOrigin: "anonymous",
+                margin: 0
+            },
+            //saveAsBlob: true
+        });
+        //console.log(qrCode)
+
+        result_error.style.display = "none";
+        result_qr.innerHTML = "";
+        qrCode.append(result_qr);
     } catch (error) {
         showQrCodeGenerationError("Failed to generate the QR code! Please try a different input.");
     }
