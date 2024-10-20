@@ -5,93 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>PCM QR Code Generator</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            width: 100vw;
-            height: 100vh;
-            max-height: 100vh;
-            margin: 0px;
-            padding: 0px;
-            display: flex;
-            flex-direction: column;
-            background-color: lightgray;
-            overflow: hidden;
-        }
-
-        header {
-            width: 100%;
-            min-height: 40px;
-            background-color: #444;
-            color: lightgray;
-            display: flex;
-            font-size: 25px;
-            padding: 5px;
-        }
-
-        header a, header .button {
-            color: lightgray;
-            margin-right: 20px;
-        }
-
-        header .button {
-            cursor: pointer;
-            text-decoration: underline
-        }
-
-        .expand {
-            flex: 1;
-        }
-
-        #text-and-qr {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding: 5px;
-        }
-
-        #input-div {
-            min-height: 100px;
-            min-width: 200px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #input {
-            width: 100%;
-            height: 100%;
-            flex: 1;
-            resize: none;
-        }
-
-        #input-error {
-            margin-bottom: 10px;
-            display: none;
-        }
-
-        .error {
-            width: 100%;
-            background-color: rgb(255, 140, 140);
-            border: 2px solid red;
-            border-radius: 10px;
-            padding: 5px;
-        }
-
-        #qrcode {
-            width: 100%;
-            height: 100%;
-            padding: 5px;
-        }
-
-        #qrcode canvas {
-            margin: auto;
-            display: block;
-        }
-    </style>
+    <link rel="stylesheet" href="main.css">
 </head>
 <body>
     <header id="header">
@@ -106,15 +20,7 @@
     <div id="text-and-qr">
         <div id="input-div">
             <div id="input-error" class="error"></div>
-            <textarea id="input" name="input" placeholder="Type the data you want to convert to a QR code here. Alternatively you can try to drag and drop or copy-paste a file in this text box, but not all browsers/operating systems support that." id="" autofocus>You can generate QR codes from any text by typing in in this box. The code generation is performed on your local device, no data is sent anywhere.
-You can even download this file (see button on the top right) and use it when you are not connected to the Internet.
-If the layout looks strange, try resizing your browser window. It always tries to maximize the QR code's size, which can look strange sometimes.
-
-⚠️ The maximum size of a QR code is dependent on its contents. It is 2953 bytes or 7089 digits.
-⚠️ Some features will not work in some browsers. In my experience Google Chrome works best.
-🎉 This should now also work with Emojis
-📁 You can now drag and drop a file in this text box
-📁 And you can copy-paste a file to this text area
+            <textarea id="input" name="input" placeholder="Type the data you want to convert to a QR code here." id="" autofocus>You can generate QR codes from any text by typing in in this box. 
 
 Here are some examples of what you can do with QR codes:
 - Link to a website: https://your-website.com/some/page?with=parameters
@@ -126,133 +32,11 @@ Here are some examples of what you can do with QR codes:
 - Add second factor to Google Authenticator: otpauth://totp/Issuer Name:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Issuer Name
             </textarea>
         </div>
-        <div id="qrcode"><div class="error">You need to enable JavaScript to use this page</div></div>
+        <div id="result-div">
+            <div id="result-error" class="error">You need to enable JavaScript to use this page</div>
+            <div id="qrcode"></div>
+        </div>
     </div>
-
-    <script type="text/javascript">
-    console.log("Offline QR code generator by github.com/maggie-lagos")
-    const get_or_default_int = (name, default_value) => {
-        const stored = localStorage.getItem(name);
-        if (stored != null) {
-            try {
-                return parseInt(stored);
-            } catch (error) {
-                console.warn(`Failed to parse stored entry for '${name}'`);
-            } 
-        }
-        return default_value;
-    }
-    
-    const header = document.getElementById("header");
-    const qrcode = document.getElementById("qrcode");
-    const input_area = document.getElementById("input");
-    const input_error = document.getElementById("input-error");
-    const text_and_qr = document.getElementById("text-and-qr");
-
-    // Size of the QR code in pixels. Set it to 0 to automatically fit the free space
-    let QR_MIN_SIZE = get_or_default_int("QR_MIN_SIZE", 30); //in pixels
-    let QR_MAX_SIZE = get_or_default_int("QR_MAX_SIZE", Infinity); // in pixels
-
-
-    window.addEventListener("load", () => {
-        // This needs to be done after loading the library
-        //setEccLevel(ERROR_CORRECTION_LEVEL);
-    })
-
-    const onHashUpdate = () => {
-        if (location.hash.length > 1) {
-            let initial_value = location.hash.slice(1); // remove leading '#'
-            initial_value = decodeURIComponent(initial_value); // URL encoded because of special characters
-            console.log("Using initial value from URL hash:", initial_value);
-            input_area.value = initial_value;
-        }
-    }
-
-    // You can set the initial value of the page via the # after the URL. This enables stuff like links and bookmarks for common values
-    // we use the hash instead of an URL parameter, since the hash is never sent to a server -> better privacy (only relevant if you use the hosted version)
-    onHashUpdate();
-    // If the user changes the hash, we should update the text box with it
-    window.addEventListener("hashchange", onHashUpdate);
-
-    const PADDING = 10; // 5px on any side for the text-and-qr element -> always 10px in total
-
-    const showInputError = (message) => {
-        // message is untrusted input, so we should escape it properly
-        if (message) {
-            input_error.innerHTML = ""; // remove current children
-            const messageElement = document.createTextNode(message);
-            input_error.appendChild(messageElement);
-            input_error.style.display = "block";
-        } else {
-            input_error.style.display = "none";
-        }
-    }
-
-    const showQrCodeGenerationError = (message) => {
-        // Bad practice, but XSS should not be possible
-        qrcode.innerHTML = `<div class="error"><b>QR code generation failed:</b><br>${message}</div>`;
-    }
-
-    const updateQRCode = () => {
-        // TODO: update this to use a qr library that accepts logos
-        // npm install qr-code-styling
- 
-
-        const max_size_fit_window = Math.min(qrcode.clientWidth, qrcode.clientHeight, QR_MAX_SIZE);
-        const qr_size = Math.max(QR_MIN_SIZE, max_size_fit_window) - 10; // remove 2 * 5px for the paddings
-        const text = input_area.value;
-
-        if (!text) {
-            showQrCodeGenerationError("You need to type some text in the input area! It will then be rendered as a QR code.");
-            return
-        }
-
-        try {
-            //const qr_code_object = qrcodegen.QrCode.encodeText(text, ecc_level);
-            const qr_code_object = "the QR code SVG will go here"
-            qrcode.innerHTML = qr_code_object //toSvgString(qr_code_object, QR_BORDER_SIZE, "white", "black");
-        } catch (error) {
-            showQrCodeGenerationError("Failed to generate the QR code! Please try a different input.");
-        }
-    }
-
-    // Update the QR code whenever the text or the window size changes
-    // Use max-width/height to keep the QR code div in square shape and allow the textarea to use the remaining space
-    input_area.addEventListener("input", updateQRCode);
-    const on_window_resize = () => {
-        const width = text_and_qr.clientWidth;
-        const height = text_and_qr.clientHeight;
-        if (!width || !height) {
-            console.warn(`Size can not be 0 or undefined. But size is (${width}, ${height})`)
-        }
-
-        const toStyleValue = (size_in_pixels) => {
-            return `${Math.max(size_in_pixels - PADDING, 0)}px`
-        }
-        if (width < height) {
-            const remaining_height = document.body.clientHeight - header.clientHeight - 100; // 100 is the minimum height of the input area div
-            // portrait view -> vertical
-            text_and_qr.style.flexDirection = "column";
-            qrcode.style.maxWidth = "";
-            qrcode.style.maxHeight = toStyleValue(Math.min(width, remaining_height));
-        } else {
-            // landscape view -> horizontal
-            const remaining_width = document.body.clientWidth - 200; // 200 is the minimum width of the input area div
-            text_and_qr.style.flexDirection = "row";
-            qrcode.style.maxWidth = toStyleValue(Math.min(height, remaining_width));
-            // Workaround for QR code not shrinking
-            qrcode.style.maxHeight = toStyleValue(document.body.clientHeight - header.clientHeight);
-        }
-
-        updateQRCode();
-    };
-
-        // sometimes the event does not get called (for example when closing the browser console). So we call it regularly just to be sure
-        setInterval(on_window_resize, 1000)
-        
-        // Call it shortly after loading the page to determine the inital layout
-        setTimeout(on_window_resize, 10);
-
-    </script>
 </body>
+<script src="client.js"></script>
 </html>

@@ -1,13 +1,13 @@
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
+import { createServer } from 'http';
+import { readFile } from 'fs';
+import { join } from 'path';
 
 const PORT = 8080;
 
-const server = http.createServer((req, res) => {
-  const filePath = path.join(__dirname, 'public', req.url === '/' ? 'index.html' : req.url);
+const server = createServer((req, res) => {
+  const filePath = join(__dirname, 'public', req.url === '/' ? 'index.html' : req.url);
 
-  fs.readFile(filePath, (err, data) => {
+  readFile(filePath, (err, data) => {
     if (err) {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('File not found');
