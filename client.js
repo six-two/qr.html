@@ -20,7 +20,7 @@ const input_error = document.getElementById("input-error");
 
 const result = document.getElementById("result-div");
 const result_qr = document.getElementById("result-qr");
-const result_error = document.getElementById("result-error");
+const result_msg = document.getElementById("result-msg");
 
 // Size of the QR code in pixels. Set it to 0 to automatically fit the free space
 let QR_MIN_SIZE = get_or_default_int("QR_MIN_SIZE", 30); //in pixels
@@ -28,7 +28,7 @@ let QR_MAX_SIZE = get_or_default_int("QR_MAX_SIZE", Infinity); // in pixels
 
 
 window.addEventListener("load", () => {
-    result_error.style.display = "none";
+    result_msg.style.display = "none";
 })
 
 const PADDING = 10; // 5px on any side for the text-and-qr element -> always 10px in total
@@ -45,10 +45,12 @@ const showInputError = (message) => {
     }
 }
 
-const showQrCodeGenerationError = (message) => {
-    result_error.innerHTML = `${message}`;
-    result_error.style.display = "block";
+const updateResultMsg = (message, isErr) => {
     result_qr.innerHTML = '';
+    
+    result_msg.innerHTML = `${message}`;
+    result_msg.className = isErr ? "error": "info";
+    result_msg.style.display = "block";    
 }
 
 const on_window_resize = () => {
@@ -76,14 +78,14 @@ const on_window_resize = () => {
         result_qr.style.maxHeight = toStyleValue(document.body.clientHeight - header.clientHeight);
     }
 
-    updateQRCode();
+    generateQR();
 };
 
-const updateQRCode = () => {
+const generateQR = () => {
     const text = input_textarea.value;
 
     if (!text) {
-        showQrCodeGenerationError("You need to type some text in the input area! It will then be rendered as a QR code.");
+        updateResultMsg("You need to type some text in the input area! It will then be rendered as a QR code.", true);
         return
     }
 
@@ -102,24 +104,19 @@ const updateQRCode = () => {
                 crossOrigin: "anonymous",
                 margin: 0
             },
-            //saveAsBlob: true
         });
         //console.log(qrCode)
 
-        result_error.style.display = "none";
-        result_qr.innerHTML = "";
+        updateResultMsg("Use Camera App to scan.", false)   // also clears previous QR code
         qrCode.append(result_qr);
     } catch (error) {
-        showQrCodeGenerationError("Failed to generate the QR code! Please try a different input.");
+        updateResultMsg("Failed to generate the QR code! Please try a different input.", true);
     }
 }
 
 // Call resize shortly after loading the page to determine the inital layout
 setTimeout(on_window_resize, 10);
 
-// sometimes the event does not get called (for example when closing the browser console). So we call it regularly just to be sure
-//setInterval(on_window_resize, 1000)
-
 // Update the QR code whenever the text or the window size changes
 // Use max-width/height to keep the QR code div in square shape and allow the textarea to use the remaining space
-input_textarea.addEventListener("input", updateQRCode);
+input_textarea.addEventListener("input", generateQR);
