@@ -56,11 +56,10 @@ textarea {
     width: 100%;
     max-width: 100%;
     height: auto;
-    /*text-align: center;*/
-    /*border: 1px solid #ccc;
-    border-radius: 4px;*/
-    
+    text-align: center;
 }
+
+
 
 .error {
     width: 100%;
@@ -70,12 +69,18 @@ textarea {
     padding: 5px;
 }
 
-.qr-message {
-    width: 50%;
-    background-color: rgb(188, 232, 186);
-    border: 2px solid green;
-    border-radius: 10px;
-    padding: 5px;
-    font-size: medium;
-    text-align: center;
+/* Button styling */
+button {
+    background-color: #6200ea;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #3700b3;
 }
