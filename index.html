@@ -10,28 +10,17 @@
 </head>
 <body>
     <header id="header">
-        <div class="title">PCM QR Code Generator</div>
+        <h1 class="title">PCM QR Code Generator</h1>
     </header>
-    <div id="text-and-qr">
-        <div id="input-div">
-            <div id="input-error" class="error"></div>
-            <textarea id="input" name="input" placeholder="Type the data you want to convert to a QR code here." id="" autofocus>You can generate QR codes from any text by typing in in this box. 
-
-Here are some examples of what you can do with QR codes:
-- Link to a website: https://your-website.com/some/page?with=parameters
-- Share email address: mailto:your.name@gmail.com
-- Share phone number: tel:+49123456789
-- Share WLAN network password: WIFI:T:WPA;S:Your WLAN name;P:Your WLAN password;;
-- Send SMS: smsto:+49123456789:Hi John, how are you? 
-- Send email: mailto:recipient@example.com?subject=Test email&body=This is a test email
-- Add second factor to Google Authenticator: otpauth://totp/Issuer Name:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Issuer Name
-            </textarea>
+    <main>
+        <div class="input-container">
+            <textarea id="input" name="input" placeholder="You can generate QR codes from any text by typing it in this box." autofocus></textarea>
         </div>
-        <div id="result-div">
-            <div id="result-qr"></div>
+        <div class="result-container">
+            <div id="result-qr" class="qr-container"></div>
             <div id="result-msg" class="error">You need to enable JavaScript to use this page</div>
         </div>
-    </div>
+    </main>
 </body>
 <script src="client.js"></script>
 </html>
