@@ -24,28 +24,35 @@ const generateQR = () => {
     }
 
     const qrSize = result_qr.offsetWidth/2;
+
     try {
-        qrCode = new QRCodeStyling({
-            width: qrSize,
-            height: qrSize,
-            type: "svg",
-            data: text,
-            image: "https://pcm-maggie.s3.amazonaws.com/pcm-logo.png",
-            dotsOptions: {
-                color: "#471b12",
-                type: "square"
-            },
-            imageOptions: {
-                crossOrigin: "anonymous",
-                margin: 0
-            },
-        });
+        if (currentQrCode){
+            currentQrCode.update({
+                data: text,
+            });
+        } else {
+            qrCode = new QRCodeStyling({
+                width: qrSize,
+                height: qrSize,
+                type: "svg",
+                data: text,
+                image: "https://pcm-maggie.s3.amazonaws.com/pcm-logo.png?random=ok",
+                dotsOptions: {
+                    color: "#471b12",
+                    type: "square"
+                },
+                imageOptions: {
+                    crossOrigin: "anonymous",
+                    margin: 0
+                },
+            });
+    
+            result_qr.innerHTML = '';
+            qrCode.append(result_qr);
+            currentQrCode = qrCode;
+        }
 
-        result_qr.innerHTML = '';
         result_msg.style.display = "none";
-
-        qrCode.append(result_qr);
-        currentQrCode = qrCode;
     } catch (error) {
         console.log(error)
         showError("Failed to generate the QR code! Please try a different input.");
