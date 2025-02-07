@@ -229,8 +229,10 @@ Here are some examples of what you can do with QR codes:
 
         try {
             const qr_code_object = qrcodegen.QrCode.encodeText(text, ecc_level);
-            qrcode.innerHTML = toSvgString(qr_code_object, QR_BORDER_SIZE, "white", "black");
+            window.qr_code_svg = toSvgString(qr_code_object, QR_BORDER_SIZE, "white", "black");
+            qrcode.innerHTML = window.qr_code_svg;
         } catch (error) {
+            window.qr_code_svg = null;
             suggestions = '<li><a href="javascript:fixByCuttingTextOfAfterQrCodeMaximumSize()">Cut off the input that does not fit into the QR code</a>';
             if (/[^A-Z0-9 $%*+.\/:-]+/.test(text)) {
                 // Contains non alphanum characters
@@ -370,6 +372,21 @@ The following functions can try to help:
         handleFileUpload(e.dataTransfer.files)
         return false;
     });
+
+    // Provide a way to download the QR code by clicking it
+    const download_qr_code_as_file = () => {
+        if (window.qr_code_svg) {
+            const blob = new Blob([window.qr_code_svg],{type:"application/octet-stream"});
+            const blob_url = URL.createObjectURL(blob);
+            const download_link_tag = document.createElement("a");
+            const date_string = new Date().toISOString().replace("T", "_").replace(/\.\d+.$/, "_UTC").replaceAll(":", "-"); // Looks like "2025-02-07_04-44-34_UTC"
+            download_link_tag.href = blob_url;
+            download_link_tag.download = `qr_code_${date_string}.svg`;
+            download_link_tag.click();
+        }
+    }
+    qrcode.addEventListener("click", download_qr_code_as_file);
+    qrcode.style.cursor = "pointer";
 
     // Update the QR code whenever the text or the window size changes
     // Use max-width/height to keep the QR code div in square shape and allow the textarea to use the remaining space
