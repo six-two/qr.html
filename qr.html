@@ -41,6 +41,10 @@
         // If you want a border around the QR code (that will stay when you right click -> "Save image as..." the image, set this to something greater than zero)
         let QR_BORDER_SIZE = get_or_default_int("QR_BORDER_SIZE", 0); // in pixels
         let QR_BORDER_COLOR = localStorage.getItem("QR_BORDER_COLOR") || "#909090"; // standard html color codes
+
+        // Specify whether you want to use PNG or SVG as your download format.
+        // Defaults to PNG, since it is smaller. You can run 'localStorage.setItem("USE_PNG_DOWNLOAD", "false"); location.reload()' in your console to chenge it to SVG
+        let USE_PNG_DOWNLOAD = (localStorage.getItem("USE_PNG_DOWNLOAD") || "true") == "true"; // true -> .png download, false -> .svg download
         // =================== End of user settings ===================
     </script>
 
@@ -228,11 +232,12 @@ Here are some examples of what you can do with QR codes:
         }
 
         try {
-            const qr_code_object = qrcodegen.QrCode.encodeText(text, ecc_level);
-            window.qr_code_svg = toSvgString(qr_code_object, QR_BORDER_SIZE, "white", "black");
+            window.qr_code_object = qrcodegen.QrCode.encodeText(text, ecc_level);
+            window.qr_code_svg = toSvgString(qr_code_object, QR_BORDER_SIZE, "white", "black");            
             qrcode.innerHTML = window.qr_code_svg;
         } catch (error) {
             window.qr_code_svg = null;
+            window.qr_code_object = null;
             suggestions = '<li><a href="javascript:fixByCuttingTextOfAfterQrCodeMaximumSize()">Cut off the input that does not fit into the QR code</a>';
             if (/[^A-Z0-9 $%*+.\/:-]+/.test(text)) {
                 // Contains non alphanum characters
@@ -376,13 +381,26 @@ The following functions can try to help:
     // Provide a way to download the QR code by clicking it
     const download_qr_code_as_file = () => {
         if (window.qr_code_svg) {
-            const blob = new Blob([window.qr_code_svg],{type:"application/octet-stream"});
-            const blob_url = URL.createObjectURL(blob);
+            use_png = USE_PNG_DOWNLOAD;
             const download_link_tag = document.createElement("a");
             const date_string = new Date().toISOString().replace("T", "_").replace(/\.\d+.$/, "_UTC").replaceAll(":", "-"); // Looks like "2025-02-07_04-44-34_UTC"
-            download_link_tag.href = blob_url;
-            download_link_tag.download = `qr_code_${date_string}.svg`;
+            const file_extension = use_png ? "png" : "svg"
+            download_link_tag.href = get_qr_code_data_url(use_png);
+            download_link_tag.download = `qr_code_${date_string}.${file_extension}`;
             download_link_tag.click();
+        }
+    }
+
+    const get_qr_code_data_url = (use_png) => {
+        if (use_png) {
+            const scale = 2;
+            const canvas = document.createElement("canvas");
+            drawCanvas(window.qr_code_object, scale, QR_BORDER_SIZE, "white", "black", canvas);
+            return canvas.toDataURL("image/png");
+        } else {
+            const blob = new Blob([window.qr_code_svg],{type:"application/octet-stream"});
+            const blob_url = URL.createObjectURL(blob);
+            return blob_url;
         }
     }
     qrcode.addEventListener("click", download_qr_code_as_file);
@@ -514,7 +532,9 @@ a){let c=0;for(const d of b){b=d.mode.numCharCountBits(a);if(d.numChars>=1<<b)re
 (function(q){(function(m){class h{constructor(e,k){this.ordinal=e;this.formatBits=k}}h.LOW=new h(0,1);h.MEDIUM=new h(1,0);h.QUARTILE=new h(2,3);h.HIGH=new h(3,2);m.Ecc=h})(q.QrCode||(q.QrCode={}))})(qrcodegen||={});
 (function(q){(function(m){class h{constructor(e,k){this.modeBits=e;this.numBitsCharCount=k}numCharCountBits(e){return this.numBitsCharCount[Math.floor((e+7)/17)]}}h.NUMERIC=new h(1,[10,12,14]);h.ALPHANUMERIC=new h(2,[9,11,13]);h.BYTE=new h(4,[8,16,16]);h.KANJI=new h(8,[8,10,12]);h.ECI=new h(7,[0,0,0]);m.Mode=h})(q.QrSegment||(q.QrSegment={}))})(qrcodegen||={});
 
-// Returns a string of SVG code for an image depicting the given QR Code, with the given number
+    // The following snippets are taken from the demo of the QR code generator library (https://www.nayuki.io/res/qr-code-generator-library/qrcodegen-input-demo.js)
+
+    // Returns a string of SVG code for an image depicting the given QR Code, with the given number
 	// of border modules. The string always uses Unix newlines (\n), regardless of the platform.
 	function toSvgString(qr, border, lightColor, darkColor) {
 		if (border < 0)
@@ -534,6 +554,25 @@ a){let c=0;for(const d of b){b=d.mode.numCharCountBits(a);if(d.numChars>=1<<b)re
 </svg>
 `;
 	}
+
+    // Draws the given QR Code, with the given module scale and border modules, onto the given HTML
+    // canvas element. The canvas's width and height is resized to (qr.size + border * 2) * scale.
+    // The drawn image is purely dark and light, and fully opaque.
+    // The scale must be a positive integer and the border must be a non-negative integer.
+    function drawCanvas(qr, scale, border, lightColor, darkColor, canvas) {
+        if (scale <= 0 || border < 0)
+            throw new RangeError("Value out of range");
+        const width = (qr.size + border * 2) * scale;
+        canvas.width = width;
+        canvas.height = width;
+        let ctx = canvas.getContext("2d");
+        for (let y = -border; y < qr.size + border; y++) {
+            for (let x = -border; x < qr.size + border; x++) {
+                ctx.fillStyle = qr.getModule(x, y) ? darkColor : lightColor;
+                ctx.fillRect((x + border) * scale, (y + border) * scale, scale, scale);
+            }
+        }
+    }
 </script>
 </body>
 </html>
