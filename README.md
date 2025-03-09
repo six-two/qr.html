@@ -1,6 +1,6 @@
 # qr.html
 
-`qr.html` is a self contained website, that can generate QR codes via [nayuki's QR code generator library](https://github.com/nayuki/QR-Code-generator).
+`qr.html` is a self-contained website, that can generate QR codes via [nayuki's QR code generator library](https://github.com/nayuki/QR-Code-generator).
 Because it is fully self-contained, you can just download the file and open it on any computer that has a browser installed, no Internet connection is needed.
 
 You can use it to exchange data with your phone, exfiltrate data from a VM, or whatever else you use QR codes for.
@@ -21,10 +21,31 @@ To set a value, you execute something like the following in your browser's conso
 localStorage.setItem("QR_BORDER_SIZE", "30")
 ```
 
+## qr-zip.html
+
+This is a fork of qr.html, that is designed to transfer as large an input text as possible.
+
+It first converts the input to a ZIP file (using [fflate](https://github.com/101arrowz/ffZlate)).
+Then it creates a binary QR code containing the ZIP file.
+Since the ZIP file will compress the input text, this allows you to transfer much more text than normally, but at the price of breaking compatibility with normal QR code readers.
+
+You can extract the ZIP file from the QR code using software like [zbarimg](https://github.com/mchehab/zbar).
+Make sure to specify that the QR code contains binary data (`-Sbinary` flag), otherwise they might be interpreted as text and corrupted:
+```bash
+zbarimg -q --raw -Sbinary path/to/qr_code.png > qr-code-data.zip
+```
+
+If you unpack the resulting ZIP file (`qr-code-data.zip` in the example above), it will contain a `qr.txt` that contains the text you originally put in the text box.
+
+You can also combine the extracting and unzipping into a single command, which does not create temporary files:
+```bash
+zbarimg -q --raw -Sbinary path/to/qr_code.png | bsdtar -xOf -
+```
+
 ## qr-legacy.html
 
 This version uses the [qr-creator](https://github.com/nimiq/qr-creator) engine, which always encodes text as bytes.
-While this is simplifies from a programming perspective (QR codes can always contain the exact same number of characters depending on the error correction level, regardless of the contents), this can result in bigger QR codes in some cases.
+While this simplifies things from a programming perspective (QR codes can always contain the exact same number of characters depending on the error correction level, regardless of the contents), this can result in bigger QR codes in some cases.
 It is kept around, since it was the previous main version and maybe some of you liked it more or maybe the new engine has some bugs, but will likely not receive much focus in the future.
 If you are unsure which version to use, I recommend choosing `qr.html` over this one.
 
@@ -34,32 +55,32 @@ If you have no direct channel to your target system (say you have a Citrix with 
 It is a very basic QR code generator optimized for size, so that you can transfer it faster using keystroke emulation software (like `xdotool type`):
 
 1. Opening a text editor on the target
-2. (Optional) Trying different typing speeds to find the fastest speed at which the transfered contents are not corrupted
+2. (Optional) Trying different typing speeds to find the fastest speed at which the transferred contents are not corrupted
 3. Tell the keystroke emulation software to type the contents of `tiny-qr.html` and wait for it to finish.
 4. Save the editor's contents as a `.html` file
 5. Open the file with a browser of your choice
 
 `tiny-qr.html` differs from `qr.html` in the following ways:
 
-- Very short error messages and use of popups instead of an dedicated error message field. No debugging data logged to the console
+- Very short error messages and use of popups instead of a dedicated error message field. No debugging data logged to the console
 - No additional features such as drag and drop, clipboard watching, etc
 - Simplified layout
 - Use of short (mostly 1 letter) variable names, removed all comments
 - When alternative syntaxes for something exist, using the shortest one
 - The file is less than half the size (12938 bytes vs 29655 bytes at the time of writing)[^3]
 
-[^3]: 2023-07-13, On MacOS. Depending on how you configured git / downloaded the file the line endings may change. That may add or subtract a couple bytes
+[^3]: 2023-07-13, On macOS. Depending on how you configured git / downloaded the file the line endings may change. That may add or subtract a couple bytes
 
 You can try out the live demo at [qr.15c.me/tiny-qr.html](https://qr.15c.me/tiny-qr.html).
 
 ## Known issues
 
 - QR code size limitation: A maximum of 2953 characters can be used with error correction level L, less if you choose better error correction.
-- When opening `qr.html` using a file URL in chromium and enabling the clipboard monitoring, a permissions dialog is triggered every time the clipboard is read (every second).
+- When opening `qr.html` using a file URL in chromium and enabling the clipboard monitoring, a permission dialog is triggered every time the clipboard is read (every second).
 
 ## Additional features
 
-For convenience I have implemented some additional features, that make it easier / faster to generate QR codes from the data you want.
+For convenience, I have implemented some additional features, that make it easier / faster to generate QR codes from the data you want.
 However, these features use APIs that not all browsers support.
 My tests were conducted on a Mac and/or Linux computer, Windows support may differ:
 
@@ -118,8 +139,9 @@ END:VCARD
 
 ## Changelog
 
-- 2024-09-14: Added more helpfull message when contents do not fit in a QR code with some actions that can help fix it.
-- 2024-09-14: Changed the underlying QR code library to one that can handle special input (only numbers or alpha numeric input) more efficiently.
+- 2025-02-09: Added qr-zip.html for transfering larger texts via QR codes.
+- 2024-09-14: Added more helpful message when contents do not fit in a QR code with some actions that can help fix it.
+- 2024-09-14: Changed the underlying QR code library to one that can handle special input (only numbers or alphanumeric input) more efficiently.
     This allows you to potentially store more information per QR code.
     A copy of the site with the old library is available at `qr-legacy.html`, but will likely not receive much future development.
 - You can provide an initial value for the textbox (and QR code) after a hashtag in the URL like this: <https://qr.15c.me/qr.html#Hello,%20world!%F0%9F%8E%89>
@@ -131,5 +153,7 @@ END:VCARD
 - Changed QR code generator library from [qrcodejs](https://github.com/davidshimjs/qrcodejs) to [qr-creator](https://github.com/nimiq/qr-creator), because qrcodejs is no longer maintained, and has problems with Unicode. Even Zhi Yuan's [better maintained fork](https://github.com/zhiyuan-l/qrcodejs) still sometimes has the same problem.
 
 ## License
+
 - You can do whatever you want with my own code, since it is licensed under "The Unlicense".
 - `qr-creator` is licensed under the MIT License (see https://github.com/nimiq/qr-creator)
+- 

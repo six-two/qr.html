@@ -241,12 +241,13 @@ Here are some examples of what you can do with QR codes:
             suggestions = '<li><a href="javascript:fixByCuttingTextOfAfterQrCodeMaximumSize()">Cut off the input that does not fit into the QR code</a>';
             if (/[^A-Z0-9 $%*+.\/:-]+/.test(text)) {
                 // Contains non alphanum characters
-                suggestions += '<li><a href="javascript:tryFixByConvertingToAlphaNum()">Convert to alpha numeric: Try to map Unicode to nearest ASCII character, make all letters uppercase and remove all special or unicode characters except for "$%*+-./:"</a>';
+                suggestions += '<li><a href="javascript:tryFixByConvertingToAlphaNum()">Convert to alpha numeric</a>: Try to map Unicode to nearest ASCII character, make all letters uppercase and remove all special or unicode characters except for "$%*+-./:"';
             }
             if (ecc_level != qrcodegen.QrCode.Ecc.LOW) {
                 // The ecc level is not at the lowest setting
                 suggestions += `<li><a href="javascript:setEccLevel('L')">Use the lowest error correction level</a>`
             }
+            suggestions += `<li><a href="qr-zip.html#${encodeURIComponent(text)}">ZIP the data in the QR code</a>: If you do this, most QR code readers will no longer support your QR code. You need specialized software to read the resulting QR code like zbarimg and bsdtar.`
 
             showQrCodeGenerationError(`Failed to generate the QR code! Your text is ${text.length} characters long. Please try a shorter text and try removing special characters and emojis. Maximum length depends on the contents and error correction level. With the current error correction level you can fit the following number of characters:
 
