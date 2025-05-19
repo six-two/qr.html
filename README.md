@@ -5,7 +5,7 @@ Because it is fully self-contained, you can just download the file and open it o
 
 You can use it to exchange data with your phone, exfiltrate data from a VM, or whatever else you use QR codes for.
 
-You can try out the live demo at [qr.15c.me/qr.html](https://qr.15c.me/qr.html).
+You can try out the live demo at [qr.15c.me](https://qr.15c.me/qr.html).
 
 ## Customization
 

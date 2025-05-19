@@ -89,6 +89,12 @@
             flex: 1;
         }
 
+        #settings {
+            width: 100%;
+            display: none; /* set this to 'flex' while developing the settings feature to show it by default. Otherwise use 'none'. */
+            flex-direction: column;
+        }
+
         #text-and-qr {
             flex: 1;
             display: flex;
@@ -141,10 +147,27 @@
         <div class="title" title="Version 2025-02-07">Offline QR code generator</div>
         <div class="expand"></div>
 
-        <div id="monitor-clipboard" class="button"></div>
+        <div id="button-settings" class="button">Settings</div>
         <a id="download" href="" download>Download</a>
         <a href="https://github.com/six-two/qr.html" target="_blank" rel="noopener noreferrer">Source code</a>
     </header>
+    <div id="settings">
+        <label><abbr title="Higher values mean bigger QR codes and thus allow fewer contents. But higher values also allow for more damage to printed codes like coffee stains, water damage, partially covered areas, etc">Error correction level</abbr>
+            <select id="setting-ecc">
+                <option value="H">High (up to 30% damage, maximum size 1273 bytes)</option>
+                <option value="Q">Quartile (up to 25% damage, maximum size 1663 bytes)</option>
+                <option value="M">Medium (up to 15% damage, maximum size 2331 bytes)</option>
+                <option value="L">Low (up to 7% damage, maximum size 2953 bytes)</option>
+            </select>
+        </label>
+        <label><abbr title="When you click on the QR code, it gets downloaded. Choose what format to download">QR code download format</abbr>
+            <select id="setting-format">
+                <option value="true">Portable Network Graphics (PNG)</option>
+                <option value="false">Scalable Vector Graphics (SVG)</option>
+            </select>
+        </label>
+        <button id="monitor-clipboard" class="button"></button>
+    </div>
     <div id="text-and-qr">
         <div id="input-div">
             <div id="input-error" class="error"></div>
@@ -175,6 +198,10 @@ Here are some examples of what you can do with QR codes:
     const input_area = document.getElementById("input");
     const input_error = document.getElementById("input-error");
     const text_and_qr = document.getElementById("text-and-qr");
+    const settings_div = document.getElementById("settings");
+    const ecc_dropdown = document.getElementById("setting-ecc");
+    const format_dropdown = document.getElementById("setting-format");
+    const settings_button = document.getElementById("button-settings");
 
     let ecc_level = "TODO";
     let max_size_digits = "TODO";
@@ -284,6 +311,10 @@ The following functions can try to help:
         max_size_alpha_numeric = getMaxQrCodeLength("A", ecc_level);
         max_size_byte = getMaxQrCodeLength("a", ecc_level);
         estimated_size_emoji = getMaxQrCodeLength("😀", ecc_level);
+
+        if (ecc_dropdown.value != eccLevelString) {
+            ecc_dropdown.value = eccLevelString
+        }
     }
 
     const fixByCuttingTextOfAfterQrCodeMaximumSize = () => {
@@ -445,12 +476,34 @@ The following functions can try to help:
     // Call it shortly after loading the page to determine the inital layout
     setTimeout(on_window_resize, 10);
 
+    // Handle the settings panel
+    ecc_dropdown.value = ERROR_CORRECTION_LEVEL;
+    ecc_dropdown.addEventListener("change", () => {
+        ERROR_CORRECTION_LEVEL = ecc_dropdown.value;
+        console.log("Set ECC level to", ERROR_CORRECTION_LEVEL);
+        localStorage.setItem("ERROR_CORRECTION_LEVEL", ERROR_CORRECTION_LEVEL);
+        setEccLevel(ERROR_CORRECTION_LEVEL);
+    });
+
+    format_dropdown.value = USE_PNG_DOWNLOAD;
+    format_dropdown.addEventListener("change", () => {
+        USE_PNG_DOWNLOAD = format_dropdown.value == "true";
+        console.log("Set download format to", USE_PNG_DOWNLOAD ? "PNG" : "SVG", format_dropdown.value);
+        localStorage.setItem("USE_PNG_DOWNLOAD", USE_PNG_DOWNLOAD);
+    });
+
+    settings_button.addEventListener("click", () => {
+        var old_visible = settings_div.style.display == "flex";
+        settings_div.style.display = old_visible ? "none" : "flex";
+        settings_button.innerText = old_visible ? "Settings" : "Hide settings";
+    })
+
     if (SHOW_CLIPBOARD_MONITORING_CONTROLS) {
         let monitor_clipboard_enabled = false;
         let clipboard_interval_handle;
 
         const monitor_clipboard_menuitem = document.getElementById("monitor-clipboard");
-        const update_cb_mon_menuitem = () => monitor_clipboard_menuitem.innerHTML = monitor_clipboard_enabled ? "Stop clipboard monitoring" : "Start clipboard monitoring";
+        const update_cb_mon_menuitem = () => monitor_clipboard_menuitem.innerText = monitor_clipboard_enabled ? "Stop clipboard monitoring" : "Start clipboard monitoring";
         monitor_clipboard_menuitem.addEventListener("click", () => {
             if (window.isSecureContext) {
                 if (monitor_clipboard_enabled) {
