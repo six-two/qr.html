@@ -42,6 +42,10 @@
         let QR_BORDER_SIZE = get_or_default_int("QR_BORDER_SIZE", 0); // in pixels
         let QR_BORDER_COLOR = localStorage.getItem("QR_BORDER_COLOR") || "#909090"; // standard html color codes
 
+        let QR_BLACK = localStorage.getItem("QR_BLACK") || "black";
+        let QR_WHITE = localStorage.getItem("QR_WHITE") || "white";
+        let QR_SCALE = get_or_default_int("QR_SCALE", 2);
+
         // Specify whether you want to use PNG or SVG as your download format.
         // Defaults to PNG, since it is smaller. You can run 'localStorage.setItem("USE_PNG_DOWNLOAD", "false"); location.reload()' in your console to chenge it to SVG
         let USE_PNG_DOWNLOAD = (localStorage.getItem("USE_PNG_DOWNLOAD") || "true") == "true"; // true -> .png download, false -> .svg download
@@ -166,6 +170,10 @@
                 <option value="false">Scalable Vector Graphics (SVG)</option>
             </select>
         </label>
+        <label>Border size<input id="setting-border-size" /></label>
+        <label><abbr title="This setting determined how many pixels are used for each (black or white) square">QR scale</abbr><input id="setting-scale" /></label>
+        <label>Black color<input id="setting-color-black" /></label>
+        <label>White color<input id="setting-color-white" /></label>
         <button id="monitor-clipboard" class="button"></button>
     </div>
     <div id="text-and-qr">
@@ -202,7 +210,11 @@ Here are some examples of what you can do with QR codes:
     const ecc_dropdown = document.getElementById("setting-ecc");
     const format_dropdown = document.getElementById("setting-format");
     const settings_button = document.getElementById("button-settings");
-
+    const borderSizeTextbox = document.getElementById("setting-border-size");
+    const colorBlackTextbox = document.getElementById("setting-color-black");
+    const colorWhiteTextbox = document.getElementById("setting-color-white");
+    const scaleTextbox = document.getElementById("setting-scale");
+    
     let ecc_level = "TODO";
     let max_size_digits = "TODO";
     let max_size_alpha_numeric = "TODO";
@@ -260,7 +272,7 @@ Here are some examples of what you can do with QR codes:
 
         try {
             window.qr_code_object = qrcodegen.QrCode.encodeText(text, ecc_level);
-            window.qr_code_svg = toSvgString(qr_code_object, QR_BORDER_SIZE, "white", "black");            
+            window.qr_code_svg = toSvgString(qr_code_object, QR_BORDER_SIZE, QR_WHITE, QR_BLACK);            
             qrcode.innerHTML = window.qr_code_svg;
         } catch (error) {
             window.qr_code_svg = null;
@@ -425,9 +437,8 @@ The following functions can try to help:
 
     const get_qr_code_data_url = (use_png) => {
         if (use_png) {
-            const scale = 2;
             const canvas = document.createElement("canvas");
-            drawCanvas(window.qr_code_object, scale, QR_BORDER_SIZE, "white", "black", canvas);
+            drawCanvas(window.qr_code_object, QR_SCALE, QR_BORDER_SIZE, QR_WHITE, QR_BLACK, canvas);
             return canvas.toDataURL("image/png");
         } else {
             const blob = new Blob([window.qr_code_svg],{type:"application/octet-stream"});
@@ -490,6 +501,34 @@ The following functions can try to help:
         USE_PNG_DOWNLOAD = format_dropdown.value == "true";
         console.log("Set download format to", USE_PNG_DOWNLOAD ? "PNG" : "SVG", format_dropdown.value);
         localStorage.setItem("USE_PNG_DOWNLOAD", USE_PNG_DOWNLOAD);
+    });
+
+    borderSizeTextbox.value = QR_BORDER_SIZE;
+    borderSizeTextbox.addEventListener("change", () => {
+        QR_BORDER_SIZE = parseInt(borderSizeTextbox.value);
+        console.log(`Change QR code border size to ${QR_BORDER_SIZE} (${borderSizeTextbox.value})`);
+        localStorage.setItem("QR_BORDER_SIZE", `${QR_BORDER_SIZE}`);
+    });
+
+    scaleTextbox.value = QR_SCALE;
+    scaleTextbox.addEventListener("change", () => {
+        QR_SCALE = parseInt(scaleTextbox.value);
+        console.log(`Change QR code scale to ${QR_SCALE} (${scaleTextbox.value})`);
+        localStorage.setItem("QR_SCALE", `${QR_SCALE}`);
+    });
+
+    colorBlackTextbox.value = QR_BLACK;
+    colorBlackTextbox.addEventListener("change", () => {
+        QR_BLACK = colorBlackTextbox.value;
+        console.log(`Change QR code black color to ${QR_BLACK}`);
+        localStorage.setItem("QR_BLACK", `${QR_BLACK}`);
+    });
+
+    colorWhiteTextbox.value = QR_WHITE;
+    colorWhiteTextbox.addEventListener("change", () => {
+        QR_WHITE = colorWhiteTextbox.value;
+        console.log(`Change QR code white color to ${QR_WHITE}`);
+        localStorage.setItem("QR_WHITE", `${QR_WHITE}`);
     });
 
     settings_button.addEventListener("click", () => {
