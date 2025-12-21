@@ -59,8 +59,8 @@
 
         body {
             width: 100vw;
-            height: 100vh;
-            max-height: 100vh;
+            height: 100dvh;
+            max-height: 100dvh;
             margin: 0px;
             padding: 0px;
             display: flex;
@@ -77,10 +77,16 @@
             display: flex;
             font-size: 25px;
             padding: 5px;
+            overflow-y: auto;
+            white-space: nowrap;
         }
 
         header a, header .button {
             color: lightgray;
+            margin-right: 20px;
+        }
+
+        header .title {
             margin-right: 20px;
         }
 
