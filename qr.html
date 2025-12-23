@@ -77,8 +77,14 @@
             display: flex;
             font-size: 25px;
             padding: 5px;
-            overflow-y: auto;
-            white-space: nowrap;
+        }
+        
+        @media (hover: none) or (pointer: coarse) {
+            /* On touch devices, let the user scroll through the menu bar. On desktop just wrap lines at whitespaces (looks better) */
+            header {
+                overflow-y: auto;
+                white-space: nowrap;
+            }
         }
 
         header a, header .button {
