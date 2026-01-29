@@ -202,7 +202,8 @@ Here are some examples of what you can do with QR codes:
 - Share email address: mailto:your.name@gmail.com
 - Share phone number: tel:+49123456789
 - Share WLAN network password: WIFI:T:WPA;S:Your WLAN name;P:Your WLAN password;;
-- Send SMS: smsto:+49123456789:Hi John, how are you? 
+- Send SMS (RFC 5724): sms:+49123456789,+4179123456?body=Hello you two!
+- Send SMS (legacy protocol): smsto:+49123456789:Hi John, how are you?
 - Send email: mailto:recipient@example.com?subject=Test email&body=This is a test email
 - Add second factor to Google Authenticator: otpauth://totp/Issuer Name:alice@google.com?secret=JBSWY3DPEHPK3PXP&issuer=Issuer Name
 
