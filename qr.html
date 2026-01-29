@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Make sure that no communication with external sites is possible -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src data:">
     <title>Offline QR code generator</title>
     <script>
         console.log("Offline QR code generator by github.com/six-two - Version 2024-09-14 - Nayuki Engine")
@@ -46,9 +46,8 @@
         let QR_WHITE = localStorage.getItem("QR_WHITE") || "white";
         let QR_SCALE = get_or_default_int("QR_SCALE", 2);
 
-        // Specify whether you want to use PNG or SVG as your download format.
-        // Defaults to PNG, since it is smaller. You can run 'localStorage.setItem("USE_PNG_DOWNLOAD", "false"); location.reload()' in your console to chenge it to SVG
-        let USE_PNG_DOWNLOAD = (localStorage.getItem("USE_PNG_DOWNLOAD") || "true") == "true"; // true -> .png download, false -> .svg download
+        // Specify what to do when you click the QR code
+        let CLICK_ACTION = (localStorage.getItem("CLICK_ACTION")) || "file.png"; // file.png -> .png download, file.svg -> .svg download, copy.png -> copy .png
         // =================== End of user settings ===================
     </script>
 
@@ -176,10 +175,11 @@
                 <option value="L">Low (up to 7% damage, maximum size 2953 bytes)</option>
             </select>
         </label>
-        <label><abbr title="When you click on the QR code, it gets downloaded. Choose what format to download">QR code download format</abbr>
+        <label><abbr title="What to do when you click on the QR code below">QR code click action</abbr>
             <select id="setting-format">
-                <option value="true">Portable Network Graphics (PNG)</option>
-                <option value="false">Scalable Vector Graphics (SVG)</option>
+                <option value="file.png">Download as PNG</option>
+                <option value="file.svg">Download as SVG</option>
+                <option value="copy.png">Copy as PNG</option>
             </select>
         </label>
         <label>Border size<input id="setting-border-size" /></label>
@@ -436,17 +436,43 @@ The following functions can try to help:
     });
 
     // Provide a way to download the QR code by clicking it
-    const download_qr_code_as_file = () => {
+    const on_qr_code_clicked_action = () => {
         if (window.qr_code_svg) {
-            use_png = USE_PNG_DOWNLOAD;
-            const download_link_tag = document.createElement("a");
-            const date_string = new Date().toISOString().replace("T", "_").replace(/\.\d+.$/, "_UTC").replaceAll(":", "-"); // Looks like "2025-02-07_04-44-34_UTC"
-            const file_extension = use_png ? "png" : "svg"
-            download_link_tag.href = get_qr_code_data_url(use_png);
-            download_link_tag.download = `qr_code_${date_string}.${file_extension}`;
-            download_link_tag.click();
+            if (CLICK_ACTION == "file.png") {
+                download_qr_code_as_file(true);
+            } else if (CLICK_ACTION == "file.svg") {
+                download_qr_code_as_file(false);
+            } else if (CLICK_ACTION == "copy.png") {
+                copy_qr_code_to_clipboard();
+            } else {
+                console.error("Unknown click action:", CLICK_ACTION)
+            }
         }
     }
+
+    const download_qr_code_as_file = (use_png) => {
+        const download_link_tag = document.createElement("a");
+        const date_string = new Date().toISOString().replace("T", "_").replace(/\.\d+.$/, "_UTC").replaceAll(":", "-"); // Looks like "2025-02-07_04-44-34_UTC"
+        const file_extension = use_png ? "png" : "svg"
+        download_link_tag.href = get_qr_code_data_url(use_png);
+        download_link_tag.download = `qr_code_${date_string}.${file_extension}`;
+        download_link_tag.click();
+    }
+
+    const copy_qr_code_to_clipboard = () => {
+        const data_url = get_qr_code_data_url(true);
+        fetch(data_url)
+            .then(response => response.blob())
+            .then(blob => {
+                navigator.clipboard.write([
+                    new ClipboardItem({
+                        [blob.type]: blob
+                    })
+                ]);
+            })
+            .catch(error => console.error("Uncaught error during QR code copy:", error));
+    }
+
 
     const get_qr_code_data_url = (use_png) => {
         if (use_png) {
@@ -459,7 +485,7 @@ The following functions can try to help:
             return blob_url;
         }
     }
-    qrcode.addEventListener("click", download_qr_code_as_file);
+    qrcode.addEventListener("click", on_qr_code_clicked_action);
     qrcode.style.cursor = "pointer";
 
     // Update the QR code whenever the text or the window size changes
@@ -509,11 +535,11 @@ The following functions can try to help:
         setEccLevel(ERROR_CORRECTION_LEVEL);
     });
 
-    format_dropdown.value = USE_PNG_DOWNLOAD;
+    format_dropdown.value = CLICK_ACTION;
     format_dropdown.addEventListener("change", () => {
-        USE_PNG_DOWNLOAD = format_dropdown.value == "true";
-        console.log("Set download format to", USE_PNG_DOWNLOAD ? "PNG" : "SVG", format_dropdown.value);
-        localStorage.setItem("USE_PNG_DOWNLOAD", USE_PNG_DOWNLOAD);
+        CLICK_ACTION = format_dropdown.value;
+        console.log("Set click action to", CLICK_ACTION);
+        localStorage.setItem("CLICK_ACTION", CLICK_ACTION);
     });
 
     borderSizeTextbox.value = QR_BORDER_SIZE;
