@@ -496,21 +496,26 @@ The following functions can try to help:
         const height = text_and_qr.clientHeight;
         if (!width || !height) {
             console.warn(`Size can not be 0 or undefined. But size is (${width}, ${height})`)
+            return;
         }
         const header_and_settings_height = header.clientHeight + settings_div.clientHeight;
+        const textarea_min_height = 100;
+        const textarea_min_width = 200;
 
         const toStyleValue = (size_in_pixels) => {
-            return `${Math.max(size_in_pixels - PADDING, 0)}px`
-        }
+            return `${Math.max(size_in_pixels - PADDING, 0)}px`;
+        };
         if (width < height) {
-            const remaining_height = document.body.clientHeight - header_and_settings_height - 100; // 100 is the minimum height of the input area div
             // portrait view -> vertical
+            const remaining_height = document.body.clientHeight - header_and_settings_height - textarea_min_height; 
+
             text_and_qr.style.flexDirection = "column";
-            qrcode.style.maxWidth = "";
+            // Limit bot width and height, so that it does not get cut off, if there is more width than height 
+            qrcode.style.maxWidth = toStyleValue(Math.min(width, remaining_height));
             qrcode.style.maxHeight = toStyleValue(Math.min(width, remaining_height));
         } else {
             // landscape view -> horizontal
-            const remaining_width = document.body.clientWidth - 200; // 200 is the minimum width of the input area div
+            const remaining_width = document.body.clientWidth - textarea_min_width;
             text_and_qr.style.flexDirection = "row";
             qrcode.style.maxWidth = toStyleValue(Math.min(height, remaining_width));
             // Workaround for QR code not shrinking
