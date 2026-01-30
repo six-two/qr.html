@@ -139,6 +139,8 @@ END:VCARD
 
 ## Changelog
 
+- 2026-01-29: Added option to copy QR code instead of downloading it to settings menu
+- 2025-05-19: Added a settings GUI tab to the menubar
 - 2025-02-09: Added qr-zip.html for transfering larger texts via QR codes.
 - 2024-09-14: Added more helpful message when contents do not fit in a QR code with some actions that can help fix it.
 - 2024-09-14: Changed the underlying QR code library to one that can handle special input (only numbers or alphanumeric input) more efficiently.
