@@ -8,7 +8,7 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src data:">
     <title>Offline QR code generator</title>
     <script>
-        console.log("Offline QR code generator by github.com/six-two - Version 2026-01-29 - Nayuki Engine")
+        console.log("Offline QR code generator by github.com/six-two - Version 2026-11-03 - Nayuki Engine")
         const get_or_default_int = (name, default_value) => {
             const stored = localStorage.getItem(name);
             if (stored != null) {
@@ -30,6 +30,11 @@
         // ERROR_CORRECTION_LEVEL Q – up to 25% damage - MAX_BYTES: 1663
         // ERROR_CORRECTION_LEVEL H – up to 30% damage - MAX_BYTES: 1273
         let ERROR_CORRECTION_LEVEL = localStorage.getItem("ERROR_CORRECTION_LEVEL") || "L";
+
+        // Line endings inside the encoded text: "CRLF" (\r\n) or "LF" (\n).
+        // A <textarea> always returns LF, so without this the QR code can never contain CRLF.
+        // Formats like vCard (RFC 6350) or iCalendar (RFC 5545) officially require CRLF.
+        let LINE_ENDINGS = localStorage.getItem("LINE_ENDINGS") || "LF";
 
         // Allow users to enable the clipboard monitoring function. Set this to false to hide the checkbox
         let SHOW_CLIPBOARD_MONITORING_CONTROLS = true;
@@ -182,6 +187,12 @@
                 <option value="copy.png">Copy as PNG</option>
             </select>
         </label>
+        <label><abbr title="Line endings used in the encoded text. CRLF is required by vCard/iCalendar, LF is the Unix style (and what the text box contains)">Line endings</abbr>
+            <select id="setting-line-endings">
+                <option value="CRLF">CRLF (\r\n)</option>
+                <option value="LF">LF (\n)</option>
+            </select>
+        </label>
         <label>Border size<input id="setting-border-size" /></label>
         <label><abbr title="This setting determined how many pixels are used for each (black or white) square">QR scale</abbr><input id="setting-scale" /></label>
         <label>Black color<input id="setting-color-black" /></label>
@@ -222,12 +233,20 @@ Here are some examples of what you can do with QR codes:
     const settings_div = document.getElementById("settings");
     const ecc_dropdown = document.getElementById("setting-ecc");
     const format_dropdown = document.getElementById("setting-format");
+    const line_endings_dropdown = document.getElementById("setting-line-endings");
     const settings_button = document.getElementById("button-settings");
     const borderSizeTextbox = document.getElementById("setting-border-size");
     const colorBlackTextbox = document.getElementById("setting-color-black");
     const colorWhiteTextbox = document.getElementById("setting-color-white");
     const scaleTextbox = document.getElementById("setting-scale");
     
+    // The textarea normalizes all line breaks to LF. Convert them to the configured line endings right before encoding
+    const convertLineEndings = (text) => {
+        // Remove all carriage returns, then convert the remaining newlines to desired format
+        text = text.replaceAll("\r", "");
+        return LINE_ENDINGS == "LF" ? text : text.replaceAll("\n", "\r\n");
+    }
+
     let ecc_level = "TODO";
     let max_size_digits = "TODO";
     let max_size_alpha_numeric = "TODO";
@@ -276,7 +295,7 @@ Here are some examples of what you can do with QR codes:
     const updateQRCode = () => {
         const max_size_fit_window = Math.min(qrcode.clientWidth, qrcode.clientHeight, QR_MAX_SIZE);
         const qr_size = Math.max(QR_MIN_SIZE, max_size_fit_window) - 10; // remove 2 * 5px for the paddings
-        const text = input_area.value;
+        const text = convertLineEndings(input_area.value);
 
         if (!text) {
             showQrCodeGenerationError("You need to type some text in the input area! It will then be rendered as a QR code.");
@@ -343,7 +362,8 @@ The following functions can try to help:
     }
 
     const fixByCuttingTextOfAfterQrCodeMaximumSize = () => {
-        input_area.value = getMaxQrCodeString(input_area.value, ecc_level);
+        qr_contents_text = convertLineEndings(input_area.value);
+        input_area.value = getMaxQrCodeString(qr_contents_text, ecc_level);
     }
 
     const tryFixByConvertingToAlphaNum = () => {
@@ -539,6 +559,14 @@ The following functions can try to help:
         console.log("Set ECC level to", ERROR_CORRECTION_LEVEL);
         localStorage.setItem("ERROR_CORRECTION_LEVEL", ERROR_CORRECTION_LEVEL);
         setEccLevel(ERROR_CORRECTION_LEVEL);
+    });
+
+    line_endings_dropdown.value = LINE_ENDINGS;
+    line_endings_dropdown.addEventListener("change", () => {
+        LINE_ENDINGS = line_endings_dropdown.value;
+        console.log("Set line endings to", LINE_ENDINGS);
+        localStorage.setItem("LINE_ENDINGS", LINE_ENDINGS);
+        updateQRCode();
     });
 
     format_dropdown.value = CLICK_ACTION;

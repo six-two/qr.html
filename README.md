@@ -139,6 +139,7 @@ END:VCARD
 
 ## Changelog
 
+- 2026-11-03: Added option to use CRLF line endings
 - 2026-01-29: Added option to copy QR code instead of downloading it to settings menu
 - 2025-05-19: Added a settings GUI tab to the menubar
 - 2025-02-09: Added qr-zip.html for transfering larger texts via QR codes.
